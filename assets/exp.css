@@ -1,0 +1,23 @@
+:root { color-scheme: light; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #20242b; background: #faf9f6; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { width: min(100% - 2.5rem, 48rem); margin: 3rem auto 5rem; }
+header { border-bottom: 1px solid #c9cbc9; margin-bottom: 1.75rem; }
+h1 { font-size: 1.35rem; font-weight: 650; letter-spacing: .025em; }
+h2 { font-size: 1.12rem; font-weight: 600; }
+p { line-height: 1.55; }
+#progress { color: #51575e; font-variant-numeric: tabular-nums; }
+#narrative { font: 1.125rem/1.7 Georgia, "Times New Roman", serif; white-space: pre-wrap; overflow-wrap: anywhere; }
+#narrative:focus { outline: none; }
+#choices { border-top: 1px solid #d8dad7; padding-top: .75rem; margin-top: 1.5rem; }
+#actions { list-style: none; padding: 0; margin: .7rem 0 1.5rem; }
+#actions li { margin: .1rem 0; }
+button { font: inherit; font-size: 1rem; cursor: pointer; }
+.action { background: none; border: 0; color: #164c7e; padding: .48rem 0; min-height: 2.75rem; text-align: left; text-decoration: underline; text-underline-offset: .18em; }
+.action:disabled { color: #626970; cursor: default; }
+button:focus-visible { outline: 2px solid #164c7e; outline-offset: 4px; }
+#start, #download, #recover-download { border: 1px solid #505b65; padding: .7rem 1.1rem; background: white; border-radius: 3px; }
+#completion, #recovery { border-top: 1px solid #c9cbc9; padding-top: 1rem; margin-top: 1.5rem; }
+[hidden] { display: none !important; }
+@media (max-width: 500px) { main { margin-top: 1.5rem; width: calc(100% - 2rem); } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }

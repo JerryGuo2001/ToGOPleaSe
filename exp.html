@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Zork I — Exploration Task</title>
+  <link rel="stylesheet" href="./assets/exp.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Zork I — Exploration Task</h1>
+      <p id="progress">Preparing your session…</p>
+    </header>
+    <p id="notice" role="status">Loading the game…</p>
+    <p id="storage-notice" role="status" hidden></p>
+    <button id="start" hidden>Start Experiment</button>
+    <section id="game" hidden aria-labelledby="location">
+      <h2 id="location"></h2>
+      <div id="narrative" tabindex="-1"></div>
+      <section id="choices" aria-labelledby="choice-heading">
+        <h2 id="choice-heading">What would you like to do?</h2>
+        <ul id="actions"></ul>
+      </section>
+    </section>
+    <section id="completion" hidden aria-labelledby="completion-heading">
+      <h2 id="completion-heading">Session complete</h2>
+      <p id="completion-message"></p>
+      <button id="download">Download CSV</button>
+      <button id="details-download">Download session details</button>
+    </section>
+    <section id="recovery" hidden aria-labelledby="recovery-heading">
+      <h2 id="recovery-heading">Previous session</h2>
+      <p id="recovery-message"></p>
+      <button id="recover-download">Download previous CSV</button>
+      <button id="recover-details">Download previous session details</button>
+    </section>
+    <noscript>This task requires JavaScript. Please enable it and reload this page.</noscript>
+  </main>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
