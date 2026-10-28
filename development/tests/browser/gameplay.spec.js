@@ -1,0 +1,23 @@
+import { test, expect } from '@playwright/test';
+import { reveal } from './menu-helpers.js';
+test('real browser loads local worker and story, and clicks through mailbox sequence', async ({ page }) => {
+  const errors = [], requests = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('request', request => requests.push(request.url()));
+  await page.goto('index.html');
+  await expect(page.locator('#start')).toBeVisible();
+  await expect(page.locator('#narrative')).toContainText('Release 119 / Serial number 880429');
+  await expect(page.locator('[data-action-id="open_mailbox"]')).toBeDisabled();
+  await page.locator('#start').click();
+  await (await reveal(page, 'open_mailbox')).click();
+  await expect(page.locator('#narrative')).toHaveText('Opening the small mailbox reveals a leaflet.\n\n');
+  await (await reveal(page, 'take_advertisement')).click();
+  await expect(page.locator('#narrative')).toHaveText('Taken.\n\n');
+  await reveal(page, 'drop_advertisement');
+  await expect(page.locator('[data-action-id="drop_advertisement"]')).toBeVisible();
+  await (await reveal(page, 'read_advertisement')).click();
+  await expect(page.locator('#narrative')).toContainText('"WELCOME TO ZORK!');
+  await expect(page.locator('input,textarea')).toHaveCount(0);
+  expect(requests.every(url => url.startsWith('http://127.0.0.1:8000/ToGOPleaSe/'))).toBeTruthy();
+  expect(errors).toEqual([]);
+});

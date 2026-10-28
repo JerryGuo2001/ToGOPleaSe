@@ -5,19 +5,23 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: development
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: development/package-lock.json
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: npm ci
       - run: npm run verify:schema
       - run: npm run build:vendor
-      - run: git diff --exit-code -- vendor/ifvms/zvm.js
+      - run: git -C .. diff --exit-code -- js/vendor/ifvms/zvm.js
       - run: npm test
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
@@ -25,4 +29,4 @@ jobs:
         if: failure()
         with:
           name: browser-test-results
-          path: test-results/
+          path: development/test-results/

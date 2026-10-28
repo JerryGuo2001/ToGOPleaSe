@@ -4,40 +4,61 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
-  <title>Zork I — Exploration Task</title>
-  <link rel="stylesheet" href="./assets/exp.css">
+  <title>Exploration Task</title>
+  <link rel="stylesheet" href="./js/styles/task.css">
 </head>
 <body>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="icon-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m16 8-2 6-6 2 2-6zM12 1v2m0 18v2M1 12h2m18 0h2"/></symbol>
+    <symbol id="icon-spark" viewBox="0 0 24 24"><path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></symbol>
+    <symbol id="icon-bag" viewBox="0 0 24 24"><path d="M8 7V5a4 4 0 0 1 8 0v2M6 7h12l2 14H4zM8 12h8v5H8z"/></symbol>
+  </defs></svg>
   <main>
-    <header>
-      <h1>Zork I — Exploration Task</h1>
-      <p id="progress">Preparing your session…</p>
+    <header class="masthead">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><span>THE EXPLORATION TASK</span></div>
+      <span class="edition">A choose-your-own adventure</span>
     </header>
-    <p id="notice" role="status">Loading the game…</p>
+    <section class="titlebar" aria-label="Story and progress">
+      <div><p id="story-subtitle" class="eyebrow">An interactive story</p><h1 id="story-title">Preparing your adventure…</h1></div>
+      <div class="scoreboard" aria-label="Game score"><span class="eyebrow">SCORE</span><div><strong id="score" aria-live="polite">—</strong><span id="score-max"></span></div><span class="score-caption">Adventure points</span></div>
+    </section>
+    <div class="session-bar"><p id="progress">Preparing your session…</p><div id="decision-track" aria-hidden="true"></div><span class="session-label">EXPLORATION SESSION</span></div>
+    <div class="intro"><p id="notice" role="status">Loading the game…</p><button id="start" class="primary" hidden>Start adventure <span aria-hidden="true">→</span></button></div>
     <p id="storage-notice" role="status" hidden></p>
-    <button id="start" hidden>Start Experiment</button>
     <section id="game" hidden aria-labelledby="location">
-      <h2 id="location"></h2>
-      <div id="narrative" tabindex="-1"></div>
-      <section id="choices" aria-labelledby="choice-heading">
-        <h2 id="choice-heading">What would you like to do?</h2>
-        <ul id="actions"></ul>
+      <section class="story-panel panel">
+        <div class="panel-heading"><span id="panel-label" class="eyebrow">THE STORY</span><span class="status-dot" aria-hidden="true"></span></div>
+        <div class="story-body">
+          <div id="story-view">
+            <div class="location-label"><svg class="icon" aria-hidden="true"><use href="#icon-compass"/></svg><span>YOUR LOCATION</span></div>
+            <h2 id="location"></h2>
+            <div class="transcript-toolbar"><span>STORY HISTORY</span><button id="latest-response" class="back" hidden>Latest response ↓</button></div>
+            <div id="transcript" role="log" aria-label="Story history" aria-live="polite" aria-relevant="additions" tabindex="0"></div>
+          </div>
+          <section id="bag-view" hidden aria-labelledby="bag-heading"><div class="location-label"><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg><span>INVENTORY</span></div><h2 id="bag-heading">Your bag</h2><p class="muted">Everything you’re carrying. Take a look anytime.</p><ul id="inventory"></ul><p id="empty-bag">Your bag is empty. There’s a whole world to explore.</p><p class="free-badge">Checking your bag doesn’t use a decision.</p></section>
+        </div>
+        <div class="story-footer"><span id="story-edition">INTERACTIVE FICTION</span><span aria-hidden="true">◆</span></div>
+      </section>
+      <section id="choices" class="choice-panel panel" aria-labelledby="choice-heading" aria-busy="true">
+        <div class="panel-heading"><span class="eyebrow">COMMAND MENU</span><span id="turn-status">Get ready</span></div>
+        <div class="choice-body">
+          <button id="menu-back" class="back" hidden>← All categories</button>
+          <h2 id="choice-heading" tabindex="-1">What will you do?</h2><p id="choice-hint" class="muted">Choose a category to explore your options.</p>
+          <div id="categories">
+            <button class="category move" data-category="move" disabled><svg class="icon" aria-hidden="true"><use href="#icon-compass"/></svg><span><strong>Move</strong><small>Explore your surroundings</small></span><span class="category-count" id="move-count"></span><span aria-hidden="true">›</span></button>
+            <button class="category interact" data-category="action" disabled><svg class="icon" aria-hidden="true"><use href="#icon-spark"/></svg><span><strong>Action</strong><small>Look, interact & discover</small></span><span class="category-count" id="action-count"></span><span aria-hidden="true">›</span></button>
+            <button class="category bag" data-category="bag" disabled><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg><span><strong>Bag</strong><small>Check & use your items</small></span><span class="category-count" id="bag-count"></span><span aria-hidden="true">›</span></button>
+          </div>
+          <ul id="actions" hidden></ul><p id="no-actions" class="muted" hidden></p>
+        </div>
+        <div class="menu-footer"><span class="keycap" aria-hidden="true">↵</span><span id="menu-note">Choose a category · no decision used</span></div>
       </section>
     </section>
-    <section id="completion" hidden aria-labelledby="completion-heading">
-      <h2 id="completion-heading">Session complete</h2>
-      <p id="completion-message"></p>
-      <button id="download">Download CSV</button>
-      <button id="details-download">Download session details</button>
-    </section>
-    <section id="recovery" hidden aria-labelledby="recovery-heading">
-      <h2 id="recovery-heading">Previous session</h2>
-      <p id="recovery-message"></p>
-      <button id="recover-download">Download previous CSV</button>
-      <button id="recover-details">Download previous session details</button>
-    </section>
+    <section id="completion" class="result-panel" hidden aria-labelledby="completion-heading"><p class="eyebrow">ADVENTURE LOG</p><h2 id="completion-heading">Session complete</h2><p id="completion-message"></p><button id="download" class="primary">Download CSV</button><button id="details-download" class="secondary">Download session details</button></section>
+    <section id="recovery" class="result-panel" hidden aria-labelledby="recovery-heading"><h2 id="recovery-heading">Previous session</h2><p id="recovery-message"></p><button id="recover-download" class="secondary">Download previous CSV</button><button id="recover-details" class="secondary">Download previous session details</button></section>
+    <footer class="page-footer"><span>A little curiosity goes a long way.</span><span>10 decisions. Your adventure.</span></footer>
     <noscript>This task requires JavaScript. Please enable it and reload this page.</noscript>
   </main>
-  <script type="module" src="./js/app.js"></script>
+  <script type="module" src="./js/task.js"></script>
 </body>
 </html>

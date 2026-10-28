@@ -1,0 +1,74 @@
+{
+  "retrieved_date": "2026-10-20",
+  "story": {
+    "file": "story_version_control/zork/zork1-r119-s880429.z3",
+    "url": "https://eblong.com/infocom/gamefiles/zork1-r119-s880429.z3",
+    "z_machine_version": 3,
+    "release": 119,
+    "serial": "880429",
+    "bytes": 86838,
+    "embedded_checksum_hex": "bf44",
+    "computed_checksum_hex": "bf44",
+    "sha256": "37084966477dff679282de42974b2077156b1bd68fad92a65d4ea94d8eb64d79",
+    "modified": false
+  },
+  "matching_source": {
+    "directory": "story_version_control/zork/source-r119",
+    "url": "https://eblong.com/infocom/sources/zork1-r119.zip",
+    "archive_sha256": "5cadef1f1c703711de10da56ba2c47e091b359ee7b18855d5b4267081772f285",
+    "license_file": "story_version_control/zork/source-r119/LICENSE",
+    "file_sha256": {
+      "story_version_control/zork/source-r119/1actions.zil": "94be62a8e11e488e866dc1fc126d63bcf2674fa1fd3710cca1d8d01cb3fb4f8b",
+      "story_version_control/zork/source-r119/1dungeon.zil": "8e223dc75ce64cff8542266101742ea73774533787c5257e8df4a262e4f02766",
+      "story_version_control/zork/source-r119/LICENSE": "98a96c38494df4963951e32b81ec4effebe4c8a812ab8d9e7d185d59e86fe2fc",
+      "story_version_control/zork/source-r119/gclock.zil": "92c4d66f18eeba8de1497215a0e17ade6c2cf1e5e050f016cf99160e41b154c6",
+      "story_version_control/zork/source-r119/gglobals.zil": "5945abfeeff71cd2b2088653c7572d3c72bf14d5af65c41b4425d945a6bb6e0a",
+      "story_version_control/zork/source-r119/gmacros.zil": "d665c73e9231429a772877357fd56d57c946838a5260a74f705c2dc898ebd8f5",
+      "story_version_control/zork/source-r119/gmain.zil": "712e27ab29d36f3d36c7994ec6d41011cb869990d8780a03bb2ee8148d3f1740",
+      "story_version_control/zork/source-r119/gparser.zil": "5c996d3048925ac8781a00c56ce66ec2e58df2c075cc587bceef6355b5c9c1a1",
+      "story_version_control/zork/source-r119/gsyntax.zil": "b0f0b4de6068bb85cf96306a16e07f410518669d12260682d3ac71e2e42b5621",
+      "story_version_control/zork/source-r119/gverbs.zil": "e1150d6300e262f774b59fe96f8139980dfad3c41f0e93f3af49140b5f57e74e",
+      "story_version_control/zork/source-r119/parser.cmp": "e4a898341d4285bfac17fddc6824b5648b49f770cc7685ac9c5de200d342d316",
+      "story_version_control/zork/source-r119/zork1.chart": "21075be29e439820e5ae634c772d09d0b47df009b0ffa715d72b389756795cc3",
+      "story_version_control/zork/source-r119/zork1.errors": "7cb1c20415840ee0c27e78c12d2d2091b0bedf02ddfcecc6331fb46f96f0a08b",
+      "story_version_control/zork/source-r119/zork1.record": "91b4644e2152ca7107d8b012e04803bf6963a366a96f7794c6813494f01a4300",
+      "story_version_control/zork/source-r119/zork1.serial": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "story_version_control/zork/source-r119/zork1.zil": "12bbbe01a0df6f542b06145abdc28a42591bd8333f02cc6761501b1ef018e104",
+      "story_version_control/zork/source-r119/zork1freq.xzap": "dcc6aae1a8b09954d43c75f128420d31c1bd91c346a05c40a0f24a89a9118daa"
+    }
+  },
+  "interpreter": {
+    "name": "ifvms.js ZVM",
+    "version": "1.1.6",
+    "repository": "https://github.com/curiousdannii/ifvms.js",
+    "commit": "6ac63e6b61144d4353a168df16c4ad5c22526f88",
+    "archive_sha256": "de046c475a3669ff1566dc0a5374b1b48f1ee34654498caf550c7d541194ae63",
+    "license_file": "js/vendor/ifvms/LICENSE",
+    "source_file_sha256": {
+      "js/vendor/ifvms/src/common/ast.js": "e0e445c3e69ea19b97c707ddc011711c475d50e162ce4e3a17fd40e135673872",
+      "js/vendor/ifvms/src/common/file.js": "a8d351571355b937943e895315cab29d5d91ac213d81c952bd7cbf7b0c9b0ea3",
+      "js/vendor/ifvms/src/common/idioms.js": "dfd9c4408a90b15c6d53093004914655ab0eb9666b76eabb7d9e46ad63abdff8",
+      "js/vendor/ifvms/src/common/utils.js": "be57c13ca4d5f0943cfae2a8da2932b9cfc5356fadb940f38ef9bdff126a08f7",
+      "js/vendor/ifvms/src/index.js": "33ab5d595c2787745865127bd4799db05fd3accceab915e504d80af941b56432",
+      "js/vendor/ifvms/src/zvm/disassembler.js": "d3a271b074b1ebcded714c121de4a29dc814af5405c0247419481add0d4a2391",
+      "js/vendor/ifvms/src/zvm/dispatch.js": "abdca71789f34308a3e054d3a5efe8dbde6a74c2e8450abcbae088e5505b6253",
+      "js/vendor/ifvms/src/zvm/io.js": "01bf36232c5ea57a8720ac45e74fc97922a83d34582f0265bc8dbd68a8e377c1",
+      "js/vendor/ifvms/src/zvm/opcodes.js": "3dc32bf411847d4fdd80c99674e2708ab3bde4e1563613d20ac6db8635e4883e",
+      "js/vendor/ifvms/src/zvm/runtime.js": "5d4faa8eff0e1e478c5d34b3de08b8dd24f0b04168c74117432367e65cb6d4db",
+      "js/vendor/ifvms/src/zvm/text.js": "91b2ea178d37018f414c98a70c5f43a3594b290b4d1cb44c8f9088c74230cfb0",
+      "js/vendor/ifvms/src/zvm.js": "983cba8d43ad514949f103b5b832ec84c578cc6cd16d97c011b863285069f0c4"
+    }
+  },
+  "original_user_files": {
+    "directory": "story_version_control/zork/original-source",
+    "note": "Preserved local develop source; declares RELEASEID 1 and references absent shared substrate. Not treated as equivalent to the original binary.",
+    "file_sha256": {
+      "story_version_control/zork/original-source/.gitignore": "710a16991aa545a9c4fb35880c63dba60709f25fd7de43afba1c909d168626c1",
+      "story_version_control/zork/original-source/LICENSE": "98a96c38494df4963951e32b81ec4effebe4c8a812ab8d9e7d185d59e86fe2fc",
+      "story_version_control/zork/original-source/actions.zil": "6d1f1cd89f76527af2fa6d700da05a325cf2c3b514f6e42dbcf984dbe11a3106",
+      "story_version_control/zork/original-source/docs/README.md": "1dd28647e0cbc02a9ed531860d009db792fdef1e3954650d983a36a72190e86a",
+      "story_version_control/zork/original-source/dungeon.zil": "cd347a0e26ba32cd1838cdc0cc82401cb83cc501833551e8155713a02c7594d9",
+      "story_version_control/zork/original-source/zork1.zil": "2431398f98e82960f272bfecd3ea7b09ebb65128af734e0a8d61e9412f0769a7"
+    }
+  }
+}

@@ -1,8 +1,6 @@
-import ZVM from '../vendor/ifvms/zvm.js';
-import { EngineCore } from './engine-core.js';
-import { generateActions } from './action-generator.js';
+import { loadStory } from './story-loader.js';
 
-const engine = new EngineCore(ZVM);
+let runtime, metadata;
 let choices = [];
 let initialized = false;
 self.onmessage = async ({ data }) => {
@@ -10,16 +8,15 @@ self.onmessage = async ({ data }) => {
     let result;
     if (data.type === 'initialize' && !initialized) {
       initialized = true;
-      const response = await fetch(new URL('../game/zork1-r119-s880429.z3', import.meta.url));
-      if (!response.ok) throw new Error(`Story load failed (${response.status})`);
-      result = await engine.initialize(await response.arrayBuffer());
-    } else if (data.type === 'execute' && initialized) {
+      ({ runtime, metadata } = await loadStory(data.storyId));
+      result = await runtime.initialize();
+    } else if (data.type === 'execute' && runtime) {
       const selected = choices.find(action => action.id === data.actionId && action.command === data.command);
       if (!selected) throw new Error('Action does not belong to the current menu');
-      result = engine.executeAction(selected.command);
+      result = await runtime.executeAction(selected.command);
     } else throw new Error('Invalid engine request');
-    choices = result.gameOver ? [] : generateActions(result.state);
-    self.postMessage({ requestId: data.requestId, result: { ...result, actions: choices } });
+    choices = result.gameOver ? [] : result.actions;
+    self.postMessage({ requestId: data.requestId, result: { ...result, story: metadata, actions: choices } });
   } catch (error) {
     self.postMessage({ requestId: data.requestId, error: String(error.message || error) });
   }

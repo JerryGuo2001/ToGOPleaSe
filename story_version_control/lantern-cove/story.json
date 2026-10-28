@@ -1,0 +1,42 @@
+{
+  "id": "lantern-cove",
+  "title": "Lantern Cove",
+  "subtitle": "A light at the edge of the sea",
+  "version": "1.0.0",
+  "engine": "text",
+  "maxScore": 20,
+  "start": "shore",
+  "items": {
+    "key": { "name": "Brass key", "description": "Small, salt-worn, and stamped with a lighthouse." },
+    "lantern": { "name": "Lantern", "description": "A little flame sheltered behind blue glass." }
+  },
+  "rooms": {
+    "shore": {
+      "name": "Quiet Shore",
+      "text": "The tide has left a ribbon of silver along the sand. Above you, an unlit lighthouse watches the cove.\n\nSomething brass glints beside a piece of driftwood. A narrow path leads up to the keeper’s cottage.",
+      "actions": [
+        { "id": "to_cottage", "label": "Follow the path to the cottage", "category": "navigation", "to": "cottage" },
+        { "id": "take_key", "label": "Pick up the brass key", "text": "You brush the sand from a small brass key.", "addItems": ["key"], "score": 5, "once": true },
+        { "id": "watch_sea", "label": "Watch the sea", "text": "Far out in the mist, a fishing boat waits for a light to guide it home." }
+      ]
+    },
+    "cottage": {
+      "name": "Keeper’s Cottage",
+      "text": "The cottage smells of cedar and sea air. A lantern rests on the table. Beyond the open window, stone steps wind up to a locked lighthouse door.",
+      "actions": [
+        { "id": "to_shore", "label": "Walk down to the shore", "category": "navigation", "to": "shore" },
+        { "id": "take_lantern", "label": "Take the lantern", "text": "You lift the lantern. Its flame flickers, then steadies.", "addItems": ["lantern"], "score": 5, "once": true },
+        { "id": "unlock_door", "label": "Unlock the lighthouse", "text": "The brass key turns. You climb the spiral stairs.", "category": "navigation", "requiresItems": ["key"], "to": "lighthouse" },
+        { "id": "examine_door", "label": "Examine the lighthouse door", "text": "A tiny lighthouse is engraved above the brass keyhole.", "withoutItems": ["key"] }
+      ]
+    },
+    "lighthouse": {
+      "name": "Lantern Room",
+      "text": "Glass surrounds you on every side. Below, the cove is disappearing into fog. The great beacon is cold, but its wick is ready.",
+      "actions": [
+        { "id": "to_cottage", "label": "Return to the cottage", "category": "navigation", "to": "cottage" },
+        { "id": "light_beacon", "label": "Light the beacon with your lantern", "category": "bag", "requiresItems": ["lantern"], "text": "You touch your lantern to the wick. Gold fills the glass, then reaches across the water.\n\nFrom the cove comes the answering sound of a ship’s bell. The boat is coming home.\n\nYour journey is complete.", "score": 10, "end": true }
+      ]
+    }
+  }
+}

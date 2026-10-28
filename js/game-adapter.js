@@ -1,5 +1,6 @@
 export class GameAdapter {
-  constructor({ timeoutMs = 15000 } = {}) {
+  constructor({ storyId, timeoutMs = 15000 } = {}) {
+    this.storyId = storyId;
     this.timeoutMs = timeoutMs;
     this.sequence = 0;
     this.pending = null;
@@ -23,7 +24,7 @@ export class GameAdapter {
       this.worker.postMessage({ requestId: id, type, ...payload });
     });
   }
-  initialize() { return this.request('initialize'); }
+  initialize() { return this.request('initialize', { storyId: this.storyId }); }
   executeAction(command) {
     const action = this.last?.actions.find(option => option.command === command);
     if (!action) return Promise.reject(new Error('Command is not in the presented menu'));

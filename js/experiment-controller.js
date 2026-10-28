@@ -1,31 +1,34 @@
 import { clock, afterVisiblePaint } from './timing.js';
-import { GAME_VERSION, RANDOM_SEED } from './engine-core.js';
-import { ACTION_GENERATOR_VERSION } from './action-generator.js';
-import { SCHEMA } from './story-schema.js';
-import { csvBlob, metadataBlob, downloadBlob } from './data-export.js';
+import { csvBlob, metadataBlob, downloadBlob } from './data_save.js';
 
-export const EXPERIMENT_VERSION = '1.0.0';
+export const EXPERIMENT_VERSION = '2.1.0';
 export const DECISION_LIMIT = 10;
 export class ExperimentController {
   constructor({ game, view, store, time = clock, present = afterVisiblePaint, download = downloadBlob, sessionId = crypto.randomUUID() }) {
     Object.assign(this, { game, view, store, time, present, download });
     this.status = 'loading';
     this.session = {
-      participant_id: sessionId, status: 'ready', rows: [], pending_attempt: null,
-      experiment_version: EXPERIMENT_VERSION, action_generator_version: ACTION_GENERATOR_VERSION,
-      game_version: GAME_VERSION, story_sha256: SCHEMA.sha256,
-      interpreter_version: 'ifvms.js 1.1.6 / 6ac63e6b61144d4353a168df16c4ad5c22526f88',
-      random_seed: RANDOM_SEED, time_origin_ms: performance.timeOrigin,
+      participant_id: sessionId, story_id: game.storyId || 'story', story_title: '', ui_events: [], status: 'ready', rows: [], pending_attempt: null,
+      experiment_version: EXPERIMENT_VERSION, action_generator_version: '',
+      game_version: '', story_sha256: '', interpreter_version: '',
+      random_seed: null, time_origin_ms: performance.timeOrigin,
       created_at: time.sample().iso, started_at: null, ended_at: null, termination_reason: '',
     };
   }
   async initialize() {
     try {
       this.current = await this.game.initialize();
+      const story = this.current.story;
+      if (story) Object.assign(this.session, {
+        story_id: story.id, story_title: story.title, game_version: story.game_version,
+        story_sha256: story.story_sha256, manifest_sha256: story.manifest_sha256,
+        action_generator_version: story.action_generator_version,
+        interpreter_version: story.interpreter_version, random_seed: story.random_seed,
+      });
       this.session.initial_narrative = this.current.response;
       this.session.initial_raw_text = this.current.rawResponse;
       this.status = 'ready';
-      this.view.render(this.current, 0);
+      this.view.render(this.current, 0, this.session.rows);
       this.view.ready();
     } catch (error) {
       this.session.error = error.message;
@@ -42,7 +45,7 @@ export class ExperimentController {
   }
   async presentMenu() {
     this.status = 'presenting';
-    this.view.render(this.current, this.session.rows.length);
+    this.view.render(this.current, this.session.rows.length, this.session.rows);
     await this.present();
     if (this.status !== 'presenting') return;
     this.presentation = this.time.sample();
@@ -51,7 +54,7 @@ export class ExperimentController {
     this.view.enable();
   }
   // The DOM handler samples both clocks before calling this method.
-  async select(actionId, clicked) {
+  async select(actionId, clicked, menuCategory = null) {
     if (this.status !== 'choosing' || this.session.rows.length >= DECISION_LIMIT) return false;
     const action = this.current.actions.find(option => option.id === actionId);
     if (!action) return false;
@@ -61,7 +64,7 @@ export class ExperimentController {
     const presented = this.presentation;
     const step = this.session.rows.length + 1;
     const attempt = {
-      step, selected_action_id: action.id, selected_action_label: action.label, command_sent: action.command,
+      step, menu_category: menuCategory, selected_action_id: action.id, selected_action_label: action.label, command_sent: action.command,
       timestamp_presented: presented.iso, timestamp_clicked: clicked.iso,
       performance_presented_ms: presented.monotonic, performance_clicked_ms: clicked.monotonic,
       rt_ms: clicked.monotonic - presented.monotonic,
@@ -77,15 +80,15 @@ export class ExperimentController {
       if (this.status !== 'processing') return false;
       this.session.rows.push({
         participant_id: this.session.participant_id, ...attempt,
-        game_version: GAME_VERSION, game_location_after: after.state.room.name,
+        story_id: this.session.story_id, game_version: this.session.game_version, game_location_after: after.state.room.name,
         location_id_after: after.state.room.id, game_text_after: after.response, game_raw_text_after: after.rawResponse,
         inventory_after: after.state.inventory, score_after: after.state.score ?? null, moves_after: after.state.moves ?? null,
         timestamp_response: response.iso, performance_response_ms: response.monotonic,
         processing_ms: response.monotonic - clicked.monotonic,
         visibility_interrupted: this.interrupted, session_status: 'in_progress',
-        experiment_version: EXPERIMENT_VERSION, action_generator_version: ACTION_GENERATOR_VERSION,
-        story_sha256: SCHEMA.sha256, interpreter_version: this.session.interpreter_version,
-        random_seed: RANDOM_SEED, termination_reason: '', time_origin_ms: this.session.time_origin_ms,
+        experiment_version: EXPERIMENT_VERSION, action_generator_version: this.session.action_generator_version,
+        story_sha256: this.session.story_sha256, interpreter_version: this.session.interpreter_version,
+        random_seed: this.session.random_seed, termination_reason: '', time_origin_ms: this.session.time_origin_ms,
         command_outcome: 'processed',
       });
       this.session.pending_attempt = null;
@@ -104,6 +107,13 @@ export class ExperimentController {
       return false;
     }
   }
+  browse(category, sample = this.time.sample()) {
+    if (this.status !== 'choosing') return false;
+    this.session.ui_events.push({ type: 'menu', category, before_step: this.session.rows.length + 1,
+      timestamp: sample.iso, performance_ms: sample.monotonic });
+    this.persist();
+    return true;
+  }
   visibilityChanged(hidden) {
     if (hidden && ['choosing', 'processing'].includes(this.status)) this.interrupted = true;
   }
@@ -119,7 +129,7 @@ export class ExperimentController {
     this.finalMetadata = metadataBlob(this.session);
     this.persist();
     this.game.close?.();
-    if (this.current) this.view.render({ ...this.current, actions: [] }, this.session.rows.length);
+    if (this.current) this.view.render({ ...this.current, actions: [] }, this.session.rows.length, this.session.rows);
     this.view.complete(this.session);
     if (autoDownload) {
       try { this.downloadCSV(); } catch { /* Manual button remains available. */ }
@@ -132,9 +142,9 @@ export class ExperimentController {
     }
   }
   downloadCSV() {
-    if (this.finalCSV) this.download(this.finalCSV, `zork_${this.session.participant_id}.csv`);
+    if (this.finalCSV) this.download(this.finalCSV, `${this.session.story_id}_${this.session.participant_id}.csv`);
   }
   downloadMetadata() {
-    if (this.finalMetadata) this.download(this.finalMetadata, `zork_${this.session.participant_id}_session.json`);
+    if (this.finalMetadata) this.download(this.finalMetadata, `${this.session.story_id}_${this.session.participant_id}_session.json`);
   }
 }

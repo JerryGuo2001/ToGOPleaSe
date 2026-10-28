@@ -1,0 +1,20 @@
+{
+  "name": "zork-decision-experiment",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify:schema": "node tools/inspect-story.js && python3 tools/map-story.py --check",
+    "generate:schema": "node tools/inspect-story.js && python3 tools/map-story.py",
+    "build:vendor": "esbuild ../js/vendor/ifvms/src/zvm.js --bundle --format=esm --outfile=../js/vendor/ifvms/zvm.js",
+    "test": "node --test tests/*.test.js",
+    "test:browser": "playwright test",
+    "serve": "node tools/serve.js",
+    "test:visibility": "playwright test --config=playwright.visibility.config.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "csv-parse": "7.0.3",
+    "esbuild": "0.28.2"
+  }
+}

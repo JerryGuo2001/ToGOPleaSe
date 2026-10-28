@@ -1,0 +1,12 @@
+{
+  "id": "zork",
+  "title": "Zork I",
+  "subtitle": "The Great Underground Empire",
+  "version": "119/880429",
+  "engine": "z-machine",
+  "sha256": "37084966477dff679282de42974b2077156b1bd68fad92a65d4ea94d8eb64d79",
+  "maxScore": 350,
+  "randomSeed": 119880429,
+  "actionPolicyVersion": "2.0.0",
+  "interpreterVersion": "ifvms.js 1.1.6 / 6ac63e6b61144d4353a168df16c4ad5c22526f88"
+}

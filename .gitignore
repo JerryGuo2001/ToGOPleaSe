@@ -3,4 +3,4 @@ test-results/
 playwright-report/
 __pycache__/
 .DS_Store
-tools/story-inspection.json
+development/tools/story-inspection.json
