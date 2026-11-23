@@ -1,14 +1,14 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { parse } from 'csv-parse/sync';
-import { action, reveal, stored } from './menu-helpers.js';
+import { action, reveal, ready, stored } from './menu-helpers.js';
 
 async function choose(page, id) {
   await (await reveal(page, id)).click();
-  await expect(page.locator('.category').first()).toBeEnabled();
+  await ready(page);
 }
 
-test('root entry, category navigation and Bag are free; score follows the original engine', async ({ page }) => {
+test('all main choices are visible and bag actions stay beside the story; score follows the original engine', async ({ page }) => {
   const commands = [];
   await page.addInitScript(() => {
     window.sentCommands = [];
@@ -22,32 +22,29 @@ test('root entry, category navigation and Bag are free; score follows the origin
   await expect(page.locator('#story-title')).toHaveText('Zork I');
   await expect(page.locator('#score')).toHaveText('0');
   await expect(page.locator('#score-max')).toHaveText('/ 350');
-  await expect(page.locator('.category').first()).toBeDisabled();
+  await expect(action(page, 'open_mailbox')).toBeDisabled();
   await page.locator('#start').click();
   const initial = await stored(page);
-  for (const category of ['move', 'action', 'bag']) {
-    await page.locator(`.category[data-category="${category}"]`).click();
-    if (category === 'bag') {
-      await expect(page.locator('#empty-bag')).toBeVisible();
-      await expect(page.locator('#story-view')).toBeVisible();
-      await expect(page.locator('#bag-view')).toBeVisible();
-    }
-    await page.keyboard.press('Escape');
-  }
+  await ready(page);
+  await expect(page.locator('#empty-bag')).toBeVisible();
+  await expect(page.locator('#story-view')).toBeVisible();
+  await expect(page.locator('#actions .action:visible')).toHaveCount(9);
+  await expect(page.locator('.masthead')).toBeHidden();
+  await expect(page.locator('.titlebar')).toBeHidden();
+  await expect(page.locator('.session-bar')).toBeHidden();
+  await page.locator('#bag-view').hover();
   const browsed = await stored(page);
   expect(browsed.rows).toEqual(initial.rows);
-  expect(browsed.ui_events).toHaveLength(6);
+  expect(browsed.ui_events).toHaveLength(0);
   expect(await page.evaluate(() => window.sentCommands)).toEqual(commands);
   await expect(page.locator('#progress')).toHaveText('Decision 1 / 10');
   await choose(page, 'open_mailbox');
   await choose(page, 'take_advertisement');
   const before = await stored(page);
   const text = await page.locator('#narrative').textContent();
-  await page.locator('.category[data-category="bag"]').click();
   await expect(page.locator('#inventory')).toContainText('leaflet');
   await expect(await reveal(page, 'read_advertisement')).toBeVisible();
   await expect(action(page, 'inventory')).toHaveCount(0);
-  await page.locator('#menu-back').click();
   expect((await stored(page)).rows).toEqual(before.rows);
   await expect(page.locator('#narrative')).toHaveText(text);
   for (const id of ['go_north', 'go_east', 'open_kitchen_window', 'go_in']) await choose(page, id);
@@ -71,7 +68,6 @@ test('a JSON-only story uses the same UI, inventory, score and export with isola
   await expect(page.locator('#recovery')).toBeHidden();
   await page.locator('#start').click();
   for (const id of ['take_key', 'to_cottage', 'take_lantern', 'unlock_door']) await choose(page, id);
-  await page.locator('.category[data-category="bag"]').click();
   await expect(page.locator('#inventory')).toContainText('Brass key');
   await expect(page.locator('#inventory')).toContainText('Lantern');
   await expect(page.locator('#score')).toHaveText('10');
@@ -103,14 +99,16 @@ test('missing and invalid story folders show a useful error', async ({ page }) =
   }
 });
 
-test('mobile bag and keyboard categories fit without horizontal scrolling', async ({ page }) => {
+test('mobile bag actions work directly from the sidebar with the keyboard', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
   await page.locator('#start').click();
   await choose(page, 'open_mailbox'); await choose(page, 'take_advertisement');
-  await page.locator('.category[data-category="bag"]').focus();
+  await (await reveal(page, 'read_advertisement')).focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#inventory')).toContainText('leaflet');
+  await ready(page);
+  expect((await stored(page)).rows).toHaveLength(3);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: 'test-results/mobile-bag.png', fullPage: true });
 });

@@ -35,7 +35,7 @@ h1 { font: 600 clamp(34px, 4.2vw, 52px)/1.1 Georgia, serif; letter-spacing: -.03
 .secondary { background: #fafaf2; margin: 8px 0; }
 #start { flex-shrink: 0; margin: 16px 0; }
 #start span { margin-left: 20px; }
-#game { display: grid; grid-template-columns: minmax(0, 1fr) 260px; align-items: stretch; gap: 16px; margin-top: 22px; grid-template-rows: minmax(0, 1fr) 220px; grid-template-areas: "story bag" "choices bag"; height: 720px; min-height: 0; }
+#game { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-rows: minmax(0, 1fr) 300px; grid-template-areas: "story bag" "choices bag"; gap: 16px; margin-top: 22px; height: 760px; min-height: 0; }
 .panel { border: 2px solid #506352; border-radius: 7px; box-shadow: 4px 5px 0 #c6cfbb; overflow: hidden; background: #fffef5; min-width: 0; min-height: 0; }
 .panel-heading { display: flex; align-items: center; justify-content: space-between; background: #f0f2e5; padding: 9px 20px; border-bottom: 1px solid #d3d9c8; min-height: 44px; flex-shrink: 0; gap: 10px; }
 .story-body { padding: 18px 22px; min-height: 0; display: flex; flex: 1; }
@@ -59,26 +59,15 @@ h2 { font-size: 22px; line-height: 1.3; letter-spacing: -.025em; margin: 12px 0 
 .choice-body { padding: 12px 16px 8px; display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .choice-body h2 { margin: 0 0 8px; }
 .muted { font-size: 12px; line-height: 1.7; color: #75816d; margin: 0 0 22px; }
-#categories { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); flex: 1; min-height: 0; }
-.category { width: 100%; display: flex; align-items: center; text-align: left; gap: 10px; min-height: 0; border: 2px solid; border-radius: 5px; padding: 10px; box-shadow: 2px 3px 0 #c7cebd; min-width: 0; }
-.category strong { display: block; font: 700 18px/1.4 ui-monospace, monospace; font-size: 16px; }
-.category small { display: block; font-size: 10px; margin-top: 3px; opacity: .8; }
-.category-count { margin-left: auto; font: 11px ui-monospace, monospace; }
-.category.move { background: #e0eeec; border-color: #6c9990; color: #315f57; }
-.category.interact { background: #f2e1d8; border-color: #b18470; color: #865842; }
-.category.bag { background: #f3ebce; border-color: #b5a16c; color: #796631; }
-.category:hover:not(:disabled) { filter: brightness(1.035); }
 .menu-footer { display: flex; align-items: center; gap: 8px; padding: 3px 16px; background: #f2f3e8; border-top: 1px solid #d7ddcb; font-size: 10px; color: #748167; justify-content: space-between; min-height: 38px; flex-shrink: 0; }
 .back { border: 0; background: transparent; color: #627860; padding: 0; min-height: 28px; font-size: 11px; margin-bottom: 14px; }
 .back:hover { text-decoration: underline; }
-#actions { list-style: none; padding: 2px; margin: 0 -2px; display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; flex: 1; min-height: 0; overflow: hidden; }
-#actions .action { width: 100%; text-align: left; padding: 9px 12px; min-height: 40px; border: 1px solid #bcc6ad; border-radius: 4px; background: #f8f9ed; font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; height: 100%; }
-#actions .action::before { content: '▸'; margin-right: 9px; color: #839371; }
-#actions .action:hover:not(:disabled) { background: #eaf0dd; border-color: #6d845f; }
-#choices[data-menu="move"] #actions .action { background: #edf5ef; }
-#choices[data-menu="bag"] #actions .action { background: #faf4df; }
+#actions { list-style: none; padding: 2px; margin: 0 -2px; display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); flex: 1; min-height: 0; }
+.action-list .action { width: 100%; text-align: left; padding: 9px 12px; min-height: 40px; border: 1px solid #bcc6ad; border-radius: 4px; background: #f8f9ed; font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; height: 100%; }
+.action-list .action::before { content: '▸'; margin-right: 9px; color: #839371; }
+.action-list .action:hover:not(:disabled) { background: #eaf0dd; border-color: #6d845f; }
 #inventory { padding: 0; margin: 0; list-style: none; display: grid; gap: 8px; flex: 1; min-height: 0; overflow: hidden; align-content: start; }
-#inventory li { display: flex; align-items: flex-start; gap: 10px; border: 1px solid #d7dbc8; border-radius: 4px; background: #f5f4e6; padding: 12px; font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
+#inventory li { display: flex; align-items: flex-start; gap: 10px; border: 1px solid #d7dbc8; border-radius: 4px; background: #f5f4e6; padding: 8px; font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
 .item-number { color: #9b9870; font: 11px/1.7 ui-monospace, monospace; flex-shrink: 0; white-space: nowrap; }
 .item-description { display: block; color: #7e846f; font-size: 11px; line-height: 1.5; margin-top: 4px; }
 #empty-bag { color: #8b927e; border: 1px dashed #c5ccb6; padding: 20px 14px; font: italic 17px/1.8 Georgia, serif; margin: 0; font-size: 16px; line-height: 1.6; }
@@ -94,15 +83,13 @@ h2 { font-size: 22px; line-height: 1.3; letter-spacing: -.025em; margin: 12px 0 
 .choice-panel { grid-area: choices; display: flex; flex-direction: column; }
 .choice-heading-row { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; min-height: 28px; flex-shrink: 0; }
 .choice-heading-row h2 { font-size: 18px; margin: 0; }
-.choice-heading-row .back { margin: 0; flex-shrink: 0; }
-#choice-hint { margin-bottom: 10px; font-size: 11px; line-height: 1.5; }
 #no-actions { margin: 0; }
 .pagination { display: flex; align-items: center; justify-content: center; gap: 10px; flex-shrink: 0; font: 10px ui-monospace, monospace; white-space: nowrap; }
 .pagination button { border: 1px solid #bcc6ad; border-radius: 4px; background: #fffef5; min-width: 30px; min-height: 28px; font-size: 15px; }
 .bag-panel { grid-area: bag; display: flex; flex-direction: column; background: #faf9ee; }
 .bag-panel .panel-heading { background: #f1eedc; }
 .bag-panel .panel-heading .icon { width: 22px; height: 22px; }
-.bag-body { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 18px 16px 10px; }
+.bag-body { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 14px; gap: 14px; }
 .bag-body > .muted { margin-bottom: 12px; }
 #inventory:empty { display: none; }
 #inventory li > span:last-child { min-width: 0; }
@@ -110,16 +97,8 @@ h2 { font-size: 22px; line-height: 1.3; letter-spacing: -.025em; margin: 12px 0 
 body.session-active { height: 100dvh; overflow: hidden; }
 .session-active main { display: flex; flex-direction: column; width: min(1440px, calc(100% - 40px)); height: 100dvh; padding: 12px 0 16px; }
 .session-active main > :not(#game) { flex-shrink: 0; }
-.session-active .masthead { padding-bottom: 6px; }
-.session-active .brand { font-size: 9px; }
-.session-active .brand-mark { font-size: 18px; }
-.session-active .edition { font-size: 11px; }
-.session-active .titlebar { margin: 8px 0; }
-.session-active .titlebar .eyebrow { font-size: 8px; }
-.session-active h1 { font-size: 26px; margin-top: 2px; }
-.session-active .session-bar { padding: 7px 0; }
 .session-active .intro, .session-active .page-footer { display: none; }
-.session-active #game { flex: 1; height: auto; grid-template-rows: minmax(0, 1fr) clamp(180px, 26dvh, 220px); margin-top: 12px; gap: 12px; }
+.session-active #game { flex: 1; height: auto; grid-template-rows: minmax(0, 1fr) clamp(260px, 42dvh, 360px); margin-top: 0; gap: 12px; }
 .session-active #storage-notice { margin: 6px 0 0; }
 .session-active.session-complete #game { grid-template-rows: minmax(0, 1fr); grid-template-areas: "story bag"; }
 .session-active #completion { margin-top: 12px; padding: 12px 16px; }
@@ -128,12 +107,25 @@ body.session-active { height: 100dvh; overflow: hidden; }
 .session-active #completion p { font-size: 12px; line-height: 1.5; margin: 4px 0; }
 .session-active #completion button { font-size: 12px; padding: 8px 12px; min-height: 36px; margin: 6px 6px 0 0; }
 
+
+/* All main choices are visible together; only the story history scrolls. */
+.session-active .masthead, .session-active .titlebar, .session-active .session-bar { display: none; }
+.choice-heading-row { margin-bottom: 12px; }
+.action-list .action { min-height: 0; }
+.action-list .action[data-category="move"] { background: #e0eeec; border-color: #99b8ad; color: #315f57; }
+#bag-actions .action { background: #faf4df; }
+#bag-heading { font-size: 22px; margin: 0; }
+.bag-contents { display: flex; flex-direction: column; flex: 0 1 30%; min-height: 72px; max-height: 210px; }
+#bag-controls { display: flex; flex-direction: column; flex: 1; min-height: 0; border-top: 1px solid #d7ddcb; padding-top: 12px; }
+#bag-action-heading { margin-bottom: 10px; }
+#bag-actions { list-style: none; padding: 2px; margin: 0 -2px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: start; flex: 1; min-height: 0; overflow: hidden; }
+#bag-action-pages { padding-top: 8px; }
+#no-bag-actions { margin: 0; }
+.session-complete .bag-contents { flex: 1; max-height: none; }
+
 @media (max-width: 1000px) {
   .session-label { display: none; }
-  #game { grid-template-columns: minmax(0, 1fr) 220px; }
-  .category { gap: 7px; }
-  .category .icon { width: 20px; height: 20px; }
-  .category small, .category > span:last-child { display: none; }
+  #game { grid-template-columns: minmax(0, 1fr) 260px; }
 }
 @media (max-width: 700px) {
   main { width: calc(100% - 24px); padding-top: 18px; }
@@ -147,8 +139,8 @@ body.session-active { height: 100dvh; overflow: hidden; }
   #decision-track { gap: 3px; }
   #decision-track span { width: 10px; }
   #game { grid-template-columns: minmax(0, 1fr) 126px; grid-template-areas: "story bag" "choices choices"; gap: 10px; }
-  .panel-heading { padding: 8px 10px; min-height: 40px; }
-  .panel-heading .eyebrow { font-size: 8px; }
+  .panel-heading { padding: 8px 10px; min-height: 40px; gap: 6px; }
+  .panel-heading .eyebrow { font-size: 7px; white-space: nowrap; }
   .scoreboard { gap: 6px; }
   #score { font-size: 18px; }
   #score-max { font-size: 10px; margin-left: 3px; }
@@ -160,69 +152,53 @@ body.session-active { height: 100dvh; overflow: hidden; }
   .transcript-toolbar .back { font-size: 10px; }
   .story-footer { padding: 8px 10px; font-size: 8px; }
   .choice-body { padding: 10px 12px 8px; }
-  .choice-heading-row { gap: 8px; }
-  .choice-heading-row h2 { font-size: 16px; }
-  #choices:not([data-menu="categories"]) #turn-status { display: none; }
-  #choice-hint { font-size: 10px; margin-bottom: 8px; }
-  #categories { gap: 8px; }
-  .category { padding: 8px; gap: 6px; }
-  .category .icon { width: 18px; height: 18px; }
-  .category strong { font-size: 13px; }
-  .category-count { font-size: 10px; }
-  .menu-footer { padding-left: 12px; padding-right: 12px; font-size: 9px; }
+  .choice-heading-row h2 { font-size: 18px; }
+  .menu-footer { min-height: 28px; padding-left: 12px; padding-right: 12px; font-size: 9px; }
   #actions { gap: 6px; }
-  #actions .action { font-size: 11px; padding: 8px; }
-  .bag-body { padding: 12px 8px 8px; }
-  #bag-heading { font-size: 20px; }
-  .bag-body > .muted { font-size: 10px; }
-  #inventory li { padding: 8px; font-size: 12px; }
-  .item-number { display: none; }
-  .item-description { font-size: 10px; }
-  #empty-bag { font-size: 13px; padding: 12px 8px; }
-  .free-badge { padding: 8px; font-size: 9px; }
-  .pagination { gap: 6px; }
+  .action-list .action { font-size: 11px; padding: 6px; line-height: 1.3; }
+  .action-list .action::before { display: none; }
+  .bag-body { padding: 8px; gap: 8px; }
+  .bag-contents { flex-basis: 28%; min-height: 66px; }
+  #bag-heading { font-size: 18px; white-space: nowrap; }
+  .bag-panel .panel-heading .icon { display: none; }
+  #bag-controls { padding-top: 8px; }
+  #bag-action-heading { font-size: 8px; margin-bottom: 6px; }
+  #inventory li { padding: 6px; font-size: 11px; }
+  .item-number, .item-description { display: none; }
+  #empty-bag { font-size: 13px; padding: 10px 6px; }
+  .free-badge { display: none; }
+  .pagination { gap: 4px; font-size: 9px; }
+  .pagination button { min-width: 24px; min-height: 24px; }
+  #inventory-pages, #bag-action-pages { padding-top: 4px; }
   .session-active main { width: calc(100% - 20px); padding: 8px 0 12px; }
-  .session-active .titlebar { margin: 6px 0; }
-  .session-active h1 { font-size: 24px; }
-  .session-active #game { grid-template-rows: minmax(0, 1fr) clamp(198px, 28dvh, 240px); gap: 8px; margin-top: 8px; }
-}
-@media (max-height: 600px) {
-  .session-active .masthead, .session-active #story-subtitle { display: none; }
-  .session-active .titlebar { margin: 0 0 4px; }
-  .session-active h1 { font-size: 22px; }
-  .session-active #game { grid-template-rows: minmax(0, 1fr) 156px; margin-top: 6px; gap: 8px; }
-  .session-active .story-body { padding-top: 8px; padding-bottom: 8px; }
-  .session-active .location-label, .session-active .story-footer { display: none; }
-  .session-active #location { font-size: 20px; margin: 0 0 4px; }
-  .session-active .transcript-toolbar { margin-bottom: 4px; }
-  .session-active #choice-hint { display: none; }
-  .session-active .choice-body { padding-top: 6px; }
-  .session-active .bag-body > .muted, .session-active .item-description { display: none; }
+  .session-active #game { grid-template-rows: minmax(0, 1fr) clamp(280px, 40dvh, 350px); gap: 8px; }
 }
 @media (max-width: 360px) {
-  .category .icon { display: none; }
-  .panel-heading { gap: 6px; }
-  .panel-heading .eyebrow { font-size: 7px; white-space: nowrap; }
+  #actions .action { padding: 5px; font-size: 10px; }
+}
+@media (max-height: 600px) {
+  .session-active .location-label, .session-active .story-footer, .session-active .item-description { display: none; }
+  .session-active #location { font-size: 20px; margin: 0 0 4px; }
+  .session-active .transcript-toolbar { margin-bottom: 4px; }
 }
 @media (max-height: 500px) {
   .session-active main { padding-top: 6px; padding-bottom: 8px; }
-  .session-active .session-bar { padding: 4px 0; }
-  .session-active #game { grid-template-rows: minmax(0, 1fr) 128px; }
+  .session-active #game { grid-template-rows: minmax(0, 1fr) 212px; gap: 8px; }
   .session-active .panel-heading { min-height: 30px; padding: 4px 12px; }
   .session-active #score { font-size: 18px; }
   .session-active .story-body { padding: 6px 12px; }
   .session-active #location { font-size: 18px; margin-bottom: 2px; }
   .session-active .transcript-toolbar, .session-active .back { min-height: 22px; }
   .session-active .choice-body { padding: 6px 10px; }
-  .session-active .choice-heading-row { min-height: 24px; margin-bottom: 2px; }
+  .session-active .choice-heading-row { min-height: 24px; margin-bottom: 6px; }
   .session-active .choice-heading-row h2 { font-size: 16px; }
-  .session-active .menu-footer { min-height: 32px; padding-top: 1px; padding-bottom: 1px; }
-  .session-active #actions .action { min-height: 32px; padding: 6px 8px; }
-  .session-active .bag-body { padding: 8px; }
-  .session-active #bag-heading { font-size: 20px; margin: 0 0 8px; }
+  .session-active .menu-footer { min-height: 24px; padding-top: 1px; padding-bottom: 1px; }
+  .session-active .action-list .action { padding: 5px 6px; font-size: 11px; line-height: 1.3; }
+  .session-active #actions { gap: 6px; }
+  .session-active .bag-body { padding: 8px; gap: 8px; }
+  .session-active #bag-heading { font-size: 20px; }
   .session-active .free-badge { display: none; }
   .session-active #completion { padding: 8px 12px; margin-top: 8px; }
   .session-active #completion button { min-height: 32px; padding: 6px 10px; }
 }
-
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }

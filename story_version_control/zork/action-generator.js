@@ -1,6 +1,6 @@
 import { has } from './state-reader.js';
 
-export const ACTION_GENERATOR_VERSION = '2.0.0';
+export const ACTION_GENERATOR_VERSION = '3.0.0';
 const key = object => object.symbol.toLowerCase().replaceAll('-', '_');
 const nounOverrides = { ADVERTISEMENT: 'leaflet', RUG: 'rug', LAMP: 'brass lantern', WATER: 'water', 'GLOBAL-WATER': 'water', 'KITCHEN-WINDOW': 'kitchen window', 'FRONT-DOOR': 'front door', 'TRAP-DOOR': 'trap door' };
 export const noun = object => nounOverrides[object.symbol] || object.noun;
@@ -29,11 +29,12 @@ export function generateActions(state) {
   const actions = [];
   const carried = new Set(state.inventory.map(object => object.id));
   let subjectId = null;
-  const add = (id, label, command, category = 'interaction') => actions.push({
-    id, label, command, category, subjectId,
-    menuGroup: category === 'navigation' ? 'move' : carried.has(subjectId) || id.startsWith('put_') ? 'bag' : 'action',
+  const add = (id, label, command, category = 'interaction', options = {}) => actions.push({
+    id, label, command, category, subjectId, menuPriority: category === 'examination' ? 0 : 2,
+    menuGroup: carried.has(subjectId) || id.startsWith('put_') ? 'bag' : category === 'navigation' ? 'move' : 'action',
+    ...options,
   });
-  for (const direction of state.exits) add(`go_${direction}`, `Go ${direction}`, direction, 'navigation');
+  for (const direction of state.exits) add(`go_${direction}`, `Go ${direction}`, direction, 'navigation', { menuPriority: state.blockedExits?.includes(direction) ? 0 : 2 });
   const objects = state.visibleObjects;
   const held = objects.filter(object => carried.has(object.id));
   for (const object of objects) {
@@ -41,12 +42,14 @@ export function generateActions(state) {
     const id = key(object), name = object.name, target = noun(object);
     if (!target) continue;
     add(`examine_${id}`, `Examine ${name}`, `examine ${target}`, 'examination');
-    if (!carried.has(object.id) && !has(object, 'ACTORBIT') && (has(object, 'TAKEBIT') || has(object, 'TRYTAKEBIT'))) add(`take_${id}`, `Take ${name}`, `take ${target}`, 'inventory');
+    // TRYTAKEBIT alone does not imply no effect (the tool chest crumbles and
+    // taking bones triggers a curse). Only source-confirmed failures rank low.
+    if (!carried.has(object.id) && !has(object, 'ACTORBIT') && (has(object, 'TAKEBIT') || has(object, 'TRYTAKEBIT'))) add(`take_${id}`, `Take ${name}`, `take ${target}`, 'inventory', { menuPriority: ['MAILBOX', 'TROPHY-CASE', 'RUG'].includes(object.symbol) ? 0 : 2 });
     if (carried.has(object.id)) add(`drop_${id}`, `Drop ${name}`, `drop ${target}`, 'inventory');
     if (has(object, 'READBIT') && state.lit) add(`read_${id}`, `Read ${name}`, `read ${target}`, 'reading');
     if ((has(object, 'CONTBIT') || has(object, 'DOORBIT')) && !has(object, 'SURFACEBIT')) {
       const verb = has(object, 'OPENBIT') ? 'close' : 'open';
-      add(`${verb}_${id}`, `${verb === 'open' ? 'Open' : 'Close'} ${name}`, `${verb} ${target}`);
+      add(`${verb}_${id}`, `${verb === 'open' ? 'Open' : 'Close'} ${name}`, `${verb} ${target}`, 'interaction', { menuPriority: ['FRONT-DOOR', 'WOODEN-DOOR'].includes(object.symbol) ? 0 : 2 });
     }
     if (has(object, 'CONTBIT') && has(object, 'OPENBIT')) add(`look_in_${id}`, `Look inside ${name}`, `look in ${target}`, 'examination');
     if (has(object, 'LIGHTBIT')) {
@@ -58,16 +61,16 @@ export function generateActions(state) {
     if (has(object, 'VEHBIT') && state.vehicle?.id !== object.id) add(`enter_${id}`, `Enter ${name}`, `board ${target}`, 'navigation');
     for (const [verb, label] of SPECIAL[object.symbol] || []) {
       // Untying an unattached rope is a contextual attempt; no suggested anchor.
-      add(`${verb.replaceAll(' ', '_')}_${id}`, `${label} ${name}`, `${verb} ${target}`);
+      add(`${verb.replaceAll(' ', '_')}_${id}`, `${label} ${name}`, `${verb} ${target}`, 'interaction', { menuPriority: ['WHITE-HOUSE', 'KITCHEN-WINDOW'].includes(object.symbol) ? 1 : 2 });
     }
     if (has(object, 'ACTORBIT')) {
       for (const weapon of held.filter(item => has(item, 'WEAPONBIT'))) {
-        add(`attack_${id}_with_${key(weapon)}`, `Attack ${name} with ${weapon.name}`, `attack ${target} with ${noun(weapon)}`, 'combat');
+        add(`attack_${id}_with_${key(weapon)}`, `Attack ${name} with ${weapon.name}`, `attack ${target} with ${noun(weapon)}`, 'combat', { menuGroup: 'bag' });
       }
     }
     if (object.symbol === 'GRATE') {
       const skeletonKey = held.find(item => item.symbol === 'KEYS');
-      if (skeletonKey) add(`unlock_${id}_with_${key(skeletonKey)}`, `Unlock ${name} with ${skeletonKey.name}`, `unlock ${target} with ${noun(skeletonKey)}`);
+      if (skeletonKey) add(`unlock_${id}_with_${key(skeletonKey)}`, `Unlock ${name} with ${skeletonKey.name}`, `unlock ${target} with ${noun(skeletonKey)}`, 'interaction', { menuGroup: 'bag' });
     }
     if (has(object, 'SURFACEBIT') || (has(object, 'CONTBIT') && has(object, 'OPENBIT'))) {
       for (const item of held) {
@@ -88,7 +91,8 @@ export function generateActions(state) {
   subjectId = null;
   if (state.vehicle) add('exit_vehicle', `Exit ${state.vehicle.name}`, 'exit', 'navigation');
   add('look', 'Look around', 'look', 'examination');
-  add('wait', 'Wait', 'wait', 'other');
+  // Waiting advances timed events; it is not classified as having no effect.
+  add('wait', 'Wait', 'wait', 'other', { menuPriority: 1 });
   const ids = new Set(), commands = new Set();
   return actions.filter(action => {
     if (ids.has(action.id) || commands.has(action.command)) return false;

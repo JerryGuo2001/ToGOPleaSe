@@ -54,22 +54,21 @@ See the [story authoring guide](../story_version_control/README.md) for a minima
 
 ## How the task works
 
-- **Move** opens available navigation choices.
-- **Action** opens interactions with your surroundings: look, examine, take, open, wait, and other contextual actions.
-- **Bag** displays carried items on the left (above the menu on mobile), with available item actions on the right. In Zork, reading, dropping and examining a held item are here.
-- Opening categories, returning to the category menu, and checking Bag use **no decision and no game move**. They read the existing state without sending a command to the game.
-- Selecting a gameplay action, including Look, using an item, or an unsuccessful attempt, counts as one decision. The session still ends after **10 decisions**, or earlier if the story ends.
-- The top-right score comes from the story state. Zork's score is the original signed score global, with its original maximum of 350.
+- Up to **nine main actions** appear together below the story in a 3×3 grid. Navigation and surroundings actions are directly clickable; there are no category screens or main-action pages.
+- When more than nine main actions are available, the menu drops informational/no-effect options first. State-changing and unknown effects rank higher; ties keep the source order. See [ACTION_POLICY.md](docs/ACTION_POLICY.md) for the exact priorities and limits.
+- **Bag** stays on the right with carried items and their actions. Reading, dropping, using held items, and using carried tools belong here. Bag actions do not count toward the nine-main-action limit. Long inventories and bag-action lists have free page controls.
+- Viewing your bag, changing its page, and reading story history use **no decision and no game move**. Selecting any gameplay action counts as one decision, including unsuccessful attempts. Sessions end after **10 decisions**, or earlier if the story ends.
+- The score inside the story panel comes from the story state. Zork uses its original signed score global and maximum of 350.
 
-Keyboard users can Tab between controls and activate them with Enter/Space. Escape returns from a category. All choices lock while a command is processing. Start does not issue a command. After Start, the header shrinks and the game fits the viewport: commands sit below the story, the score is inside the story panel, and inventory stays visible on the right. The main story keeps a scrollable transcript of the opening narrative and every selected action with its response. Each new turn brings the newest entry into view; scroll up to revisit earlier turns or use “Latest response” to return. Bag opens item actions without hiding the story or changing its scroll position. Long action and inventory lists use free page controls instead of additional scroll areas. The complete history remains available when the session ends.
+Keyboard users can Tab between controls and activate them with Enter/Space. All actions lock while a command is processing. Start does not issue a command. After Start, the entire welcome header—including the story title and decision strip—is hidden and the game fills the viewport. Only the transcript scrolls. Each new turn brings its action and response into view; scroll up for history or use “Latest response” to return. The full history and inventory remain available when the session ends.
 
 ## Timing and saved data
 
 Data stays in the browser. There is no backend, analytics, or upload. Finishing downloads `<story-id>_<anonymous-id>.csv`; buttons let you download the CSV again and save session details as JSON. Interrupted sessions can be downloaded after reloading. Recovery is separated by story; earlier v1 Zork sessions can still be recovered.
 
-The measurement starts when the category menu is enabled after two visible animation frames. Reaction time includes category browsing and Bag viewing; the timer is not reset by either. Category visits are saved as `ui_events` in session JSON without adding CSV decision rows. CSV includes `story_id`, `menu_category`, the complete available action list, original text, inventory, score, engine moves, timestamps, timing, visibility interruptions and reproducibility metadata. See [MEASUREMENT.md](docs/MEASUREMENT.md).
+The measurement starts when actions are enabled after two visible animation frames. Reaction time includes reading history, viewing inventory, and paging through bag actions; these do not restart the timer. Bag page visits are saved in session JSON `ui_events` without CSV decision rows. CSV contains the exact retained main actions plus all bag actions, original text, inventory, score, timestamps and version metadata. Omitted main choices are neither executable through the worker nor recorded as available. See [MEASUREMENT.md](docs/MEASUREMENT.md).
 
-**The category UI changes the experimental procedure.** The category UI and Zork action-policy version are `2.0.0`; implementation `2.1.0` exposes the running story history, and `2.2.0` adds persistent inventory and viewport-dependent pagination. These versions change participant information access; v1 response times and decision counts that included Inventory should not be treated as the same task condition.
+**Implementation and Zork action-policy version `3.0.0` change the experimental procedure.** All main choices are exposed together and capped at nine; item actions move into the persistent bag. This differs from the category browsing in v2 and must be distinguished when comparing conditions.
 
 ## GitHub Pages
 

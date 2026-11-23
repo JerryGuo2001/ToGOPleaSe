@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { action, reveal, stored } from './menu-helpers.js';
+import { action, reveal, ready, stored } from './menu-helpers.js';
 
 for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
   test(`story history retains actions and responses with free scrollback at ${viewport.width}px`, async ({ page }) => {
@@ -9,11 +9,11 @@ for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 
     const opening = await page.locator('#narrative').textContent();
     await expect(page.locator('.transcript-entry')).toHaveCount(1);
     await page.locator('#start').click();
-    await expect(action(page, 'look')).toBeEnabled();
+    await ready(page);
     await expect(page.locator('.transcript-entry')).toHaveCount(1);
-    for (const id of ['open_mailbox', 'take_advertisement', 'read_advertisement', 'look']) {
+    for (const id of ['open_mailbox', 'take_advertisement', 'read_advertisement', 'close_mailbox']) {
       await (await reveal(page, id)).click();
-      await expect(action(page, 'look')).toBeEnabled();
+      await ready(page);
     }
     const before = await stored(page);
     await expect(page.locator('.transcript-entry')).toHaveCount(5);
@@ -28,9 +28,8 @@ for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 
     await page.keyboard.press('Home');
     await expect.poll(() => transcript.evaluate(el => el.scrollTop)).toBe(0);
     await expect(page.locator('.story-response').first()).toBeInViewport();
-    await page.locator('.category[data-category="bag"]').click();
+    await page.locator('#inventory').hover();
     await expect(page.locator('#inventory')).toContainText('leaflet');
-    await page.locator('#menu-back').click();
     expect(await transcript.evaluate(el => el.scrollTop)).toBe(0);
     await page.locator('#latest-response').click();
     expect(await transcript.evaluate(el => el.scrollTop)).toBeGreaterThan(0);

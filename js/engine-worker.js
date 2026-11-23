@@ -1,4 +1,5 @@
 import { loadStory } from './story-loader.js';
+import { selectMenu } from './action-menu.js';
 
 let runtime, metadata;
 let choices = [];
@@ -15,7 +16,7 @@ self.onmessage = async ({ data }) => {
       if (!selected) throw new Error('Action does not belong to the current menu');
       result = await runtime.executeAction(selected.command);
     } else throw new Error('Invalid engine request');
-    choices = result.gameOver ? [] : result.actions;
+    choices = result.gameOver ? [] : selectMenu(result.actions);
     self.postMessage({ requestId: data.requestId, result: { ...result, story: metadata, actions: choices } });
   } catch (error) {
     self.postMessage({ requestId: data.requestId, error: String(error.message || error) });

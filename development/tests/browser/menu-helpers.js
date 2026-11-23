@@ -1,21 +1,14 @@
 import { expect } from '@playwright/test';
 export const action = (page, id) => page.locator(`[data-action-id="${id}"]`);
+export const ready = page => expect(page.locator('#choices')).toHaveAttribute('aria-busy', 'false');
 export async function reveal(page, id) {
   const button = action(page, id);
   await expect(button).toBeEnabled();
-  const category = await button.getAttribute('data-category');
-  if (await page.locator('#choices').getAttribute('data-menu') !== category) {
-    if (await page.locator('#menu-back').isVisible()) await page.locator('#menu-back').click();
-    await page.locator(`.category[data-category="${category}"]`).click();
+  if (await button.getAttribute('data-category') === 'bag') {
+    while (!await button.isVisible() && await page.locator('#bag-action-next').isEnabled()) await page.locator('#bag-action-next').click();
+    while (!await button.isVisible() && await page.locator('#bag-action-previous').isEnabled()) await page.locator('#bag-action-previous').click();
   }
-  while (!await button.isVisible() && await page.locator('#action-next').isEnabled()) {
-    await page.locator('#action-next').click();
-  }
-  if (!await button.isVisible()) {
-    while (!await button.isVisible() && await page.locator('#action-previous').isEnabled()) {
-      await page.locator('#action-previous').click();
-    }
-  }
+  await expect(button).toBeVisible();
   return button;
 }
 export const stored = (page, story = 'zork') => page.evaluate(storyId => {

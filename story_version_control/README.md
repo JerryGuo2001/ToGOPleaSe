@@ -58,7 +58,7 @@ Save this as `story_version_control/my-story/story.json`:
 | Field | Meaning |
 | --- | --- |
 | `id` | Exactly matches the folder name. Use lowercase letters, numbers, `_` or `-`. |
-| `title`, `subtitle` | Displayed in the page header. Subtitle is optional. |
+| `title`, `subtitle` | Displayed in the welcome header, hidden after Start. Subtitle is optional. |
 | `version` | Your story version. Change it when revising text or rules. |
 | `engine` | Use `"text"` for JSON stories. |
 | `start` | ID of the initial room. |
@@ -75,7 +75,8 @@ Write paragraphs using `\n\n` inside JSON strings. Text is rendered as plain tex
 | --- | --- |
 | `id` | Unique within its room; starts with a lowercase letter, followed by lowercase letters, numbers, `_` or `-`. Recorded as the command. |
 | `label` | Button text. |
-| `category` | `"navigation"` → Move; `"interaction"` (default) → Action; `"bag"` → Bag. |
+| `category` | `"navigation"` and `"interaction"` (default) appear in the main grid; `"bag"` appears in the bag panel. Choices requiring or removing held items also appear in the bag. |
+| `essential` | Optional boolean. `true` prioritizes a vital choice (including a clue with no state effect) when the main grid exceeds nine choices. |
 | `text` | Optional response after selecting this choice. |
 | `to` | Optional destination room ID. Its full narrative appears after the response. |
 | `addItems`, `removeItems` | Arrays of item IDs to add to/remove from inventory. |
@@ -88,7 +89,7 @@ Write paragraphs using `\n\n` inside JSON strings. Text is rendered as plain tex
 
 Conditions on a choice are combined with AND. For example, `requiresItems: ["key"]` and `withoutFlags: ["door_open"]` means the player must have the key and must not have opened the door. Use flags for puzzle state. Use `once: true` for a reward that should not be farmed by revisiting a room. Removing an item does not automatically hide the corresponding choice: add `requiresItems` when consumption requires possession.
 
-The engine automatically updates inventory and score. Every executed choice uses one decision and one text-engine move. Simply visiting Move, Action or Bag never executes a choice. There is no need to write a “check inventory” action. A Bag choice that uses an item is a normal counted action; set its `requiresItems` accordingly.
+The engine automatically updates inventory and score. Every executed choice uses one decision and one text-engine move. Viewing inventory, history, or bag-action pages never executes a choice. There is no need to write a “check inventory” action. A Bag choice that uses an item is a normal counted action; set its `requiresItems` accordingly.
 
 The task ends at 10 decisions unless the story finishes earlier. This experimental limit is shared by all stories and defined in `js/experiment-controller.js`.
 
@@ -114,4 +115,4 @@ Adding another existing Z-machine game requires a story-specific `runtime.js`, s
 }
 ```
 
-The worker validates each command against the latest menu before passing it to the runtime. A runtime can explicitly set each action's `menuGroup` to `move`, `action` or `bag`. The JSON engine handles this contract for you, so new authored stories normally need only `story.json`.
+The worker retains at most nine main choices, prioritizing state changes over informational actions, then validates each command against that retained menu before passing it to the runtime. Bag actions are separate and uncapped. Ties preserve authored order; if more than nine essential or state-changing main choices remain, later choices are omitted. Design rooms within this limit to keep every required route available. A runtime can explicitly set each action's `menuGroup` to `move`, `action` or `bag`. Custom runtimes can set `menuPriority` (0 informational, 1 secondary, 2 state-changing/unknown, 3 essential); absent metadata defaults to 2. The JSON engine derives this from your authored rules, so new authored stories normally need only `story.json`.

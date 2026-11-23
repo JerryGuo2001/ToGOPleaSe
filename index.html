@@ -37,25 +37,27 @@
         </div>
         <div class="story-footer"><span id="story-edition">INTERACTIVE FICTION</span><span aria-hidden="true">◆</span></div>
       </section>
-      <aside id="bag-view" class="bag-panel panel" aria-labelledby="bag-heading">
-        <div class="panel-heading"><span class="eyebrow">INVENTORY</span><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg></div>
-        <div class="bag-body"><h2 id="bag-heading">Your bag</h2><p class="muted">Everything you’re carrying.</p><ul id="inventory"></ul><p id="empty-bag">Your bag is empty. There’s a whole world to explore.</p>
-          <nav id="inventory-pages" class="pagination" aria-label="Inventory pages" hidden><button id="inventory-previous" aria-label="Previous inventory page">←</button><span id="inventory-page" aria-live="polite"></span><button id="inventory-next" aria-label="Next inventory page">→</button></nav>
-        </div>
-        <p class="free-badge">Checking your bag doesn’t use a decision.</p>
-      </aside>
       <section id="choices" class="choice-panel panel" aria-labelledby="choice-heading" aria-busy="true">
         <div class="choice-body">
-          <div class="choice-heading-row"><button id="menu-back" class="back" hidden>← Categories</button><h2 id="choice-heading" tabindex="-1">What will you do?</h2><span id="turn-status">Get ready</span></div><p id="choice-hint" class="muted">Choose a category to explore your options.</p>
-          <div id="categories">
-            <button class="category move" data-category="move" disabled><svg class="icon" aria-hidden="true"><use href="#icon-compass"/></svg><span><strong>Move</strong><small>Explore your surroundings</small></span><span class="category-count" id="move-count"></span><span aria-hidden="true">›</span></button>
-            <button class="category interact" data-category="action" disabled><svg class="icon" aria-hidden="true"><use href="#icon-spark"/></svg><span><strong>Action</strong><small>Look, interact & discover</small></span><span class="category-count" id="action-count"></span><span aria-hidden="true">›</span></button>
-            <button class="category bag" data-category="bag" disabled><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg><span><strong>Bag</strong><small>Use your items</small></span><span class="category-count" id="bag-count"></span><span aria-hidden="true">›</span></button>
-          </div>
-          <ul id="actions" hidden></ul><p id="no-actions" class="muted" hidden></p>
+          <div class="choice-heading-row"><h2 id="choice-heading">What will you do?</h2><span id="turn-status">Get ready</span></div>
+          <ul id="actions" class="action-list"></ul><p id="no-actions" class="muted" hidden>No actions here. Check your bag for item actions.</p>
         </div>
-        <div class="menu-footer"><span id="menu-note">Choose a category · no decision used</span><nav id="action-pages" class="pagination" aria-label="Action pages" hidden><button id="action-previous" aria-label="Previous action page">←</button><span id="action-page" aria-live="polite"></span><button id="action-next" aria-label="Next action page">→</button></nav></div>
+        <div class="menu-footer">Choose an action · uses 1 decision</div>
       </section>
+      <aside id="bag-view" class="bag-panel panel" aria-labelledby="bag-heading">
+        <div class="panel-heading"><h2 id="bag-heading">Your bag</h2><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg></div>
+        <div class="bag-body">
+          <section class="bag-contents" aria-label="Carried items"><ul id="inventory"></ul><p id="empty-bag">Your bag is empty.</p>
+            <nav id="inventory-pages" class="pagination" aria-label="Inventory pages" hidden><button id="inventory-previous" aria-label="Previous inventory page">←</button><span id="inventory-page" aria-live="polite"></span><button id="inventory-next" aria-label="Next inventory page">→</button></nav>
+          </section>
+          <section id="bag-controls" aria-labelledby="bag-action-heading" aria-busy="true">
+            <h3 id="bag-action-heading" class="eyebrow">ITEM ACTIONS</h3>
+            <ul id="bag-actions" class="action-list"></ul><p id="no-bag-actions" class="muted">No item actions available here.</p>
+            <nav id="bag-action-pages" class="pagination" aria-label="Item action pages" hidden><button id="bag-action-previous" aria-label="Previous item action page">←</button><span id="bag-action-page" aria-live="polite"></span><button id="bag-action-next" aria-label="Next item action page">→</button></nav>
+          </section>
+        </div>
+        <p class="free-badge">Viewing is free · item actions use 1 decision</p>
+      </aside>
     </section>
     <section id="completion" class="result-panel" hidden aria-labelledby="completion-heading"><p class="eyebrow">ADVENTURE LOG</p><h2 id="completion-heading">Session complete</h2><p id="completion-message"></p><button id="download" class="primary">Download CSV</button><button id="details-download" class="secondary">Download session details</button></section>
     <section id="recovery" class="result-panel" hidden aria-labelledby="recovery-heading"><h2 id="recovery-heading">Previous session</h2><p id="recovery-message"></p><button id="recover-download" class="secondary">Download previous CSV</button><button id="recover-details" class="secondary">Download previous session details</button></section>

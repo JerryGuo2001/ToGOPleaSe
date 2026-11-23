@@ -34,6 +34,7 @@ export class TextEngine {
         if (action.to !== undefined && !owns(rooms, action.to)) fail(`${action.id} has an unknown destination`);
         if (action.text !== undefined && typeof action.text !== 'string') fail(`${action.id} text must be a string`);
         if (action.score !== undefined && !Number.isFinite(action.score)) fail(`${action.id} score must be a number`);
+        if (action.essential !== undefined && typeof action.essential !== 'boolean') fail(`${action.id} essential must be a boolean`);
         for (const field of ['requiresItems', 'withoutItems', 'addItems', 'removeItems']) itemList(action[field] || [], action.id);
         for (const field of ['requiresFlags', 'withoutFlags', 'setFlags', 'clearFlags']) {
           if (action[field] !== undefined && (!Array.isArray(action[field]) || action[field].some(flag => typeof flag !== 'string'))) fail(`${action.id} ${field} must be a list of strings`);
@@ -74,7 +75,17 @@ export class TextEngine {
         room: { id: this.roomId, name: room.name }, score: this.score, moves: this.moves,
         inventory: [...this.items].map(id => ({ id, name: this.story.items[id].name, description: this.story.items[id].description || '' })),
       },
-      actions: this.available().map(action => ({ id: action.id, label: action.label, command: action.id, category: action.category || 'interaction' })),
+      actions: this.available().map(action => {
+        const changesState = (action.to && action.to !== this.roomId) || action.score || action.once || action.end ||
+          (action.addItems || []).some(id => !this.items.has(id)) || (action.removeItems || []).some(id => this.items.has(id)) ||
+          (action.setFlags || []).some(flag => !this.flags.has(flag)) || (action.clearFlags || []).some(flag => this.flags.has(flag));
+        const usesItem = action.category === 'bag' || action.requiresItems?.length || action.removeItems?.length;
+        return {
+          id: action.id, label: action.label, command: action.id, category: action.category || 'interaction',
+          menuGroup: usesItem ? 'bag' : action.category === 'navigation' ? 'move' : 'action',
+          menuPriority: action.essential ? 3 : changesState ? 2 : 0,
+        };
+      }),
       gameOver: this.gameOver, terminationReason: this.gameOver ? 'story_finish' : '',
     };
   }

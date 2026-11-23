@@ -3,15 +3,15 @@ import { readFile } from 'node:fs/promises';
 import { parse } from 'csv-parse/sync';
 import { COLUMNS } from '../../../js/data_save.js';
 
-import { action, reveal, stored } from './menu-helpers.js';
+import { action, reveal, ready, stored } from './menu-helpers.js';
 async function start(page) {
   await page.goto('index.html');
   await page.locator('#start').click();
-  await expect(action(page, 'look')).toBeEnabled();
+  await ready(page);
 }
 async function choose(page, id) {
   await (await reveal(page, id)).click();
-  await expect(action(page, 'look')).toBeEnabled();
+  await ready(page);
 }
 
 test('complete ten-decision session downloads exact displayed menus and original text', async ({ page }) => {
@@ -75,7 +75,7 @@ test('slow actual worker command locks clicks and does not contaminate reaction 
   });
   await start(page);
   await (await reveal(page, 'open_mailbox')).dblclick();
-  await expect(action(page, 'look')).toBeDisabled();
+  await expect(page.locator('#choices')).toHaveAttribute('aria-busy', 'true');
   await expect(action(page, 'take_advertisement')).toBeEnabled();
   const session = await stored(page);
   expect(session.rows).toHaveLength(1);
@@ -122,17 +122,17 @@ test('refresh preserves interrupted CSV and starts a fresh story with a new ID',
   expect(rows[0].participant_id).toBe(prior.participant_id);
   expect(rows[0].session_status).toBe('early_termination');
   await page.locator('#start').click();
-  await choose(page, 'look');
+  await choose(page, 'open_mailbox');
   const active = await page.evaluate(() => {
     const id = sessionStorage.getItem('exploration-task:v2:zork:active');
     return JSON.parse(localStorage.getItem(`exploration-task:v2:zork:${id}`));
   });
   expect(active.participant_id).not.toBe(prior.participant_id);
   expect(active.rows).toHaveLength(1);
-  expect(active.rows[0].game_text_after).toContain('There is a small mailbox here.');
-  await reveal(page, 'open_mailbox');
-  await expect(action(page, 'open_mailbox')).toBeVisible();
-  await expect(action(page, 'take_advertisement')).toHaveCount(0);
+  expect(active.rows[0].game_text_after).toContain('Opening the small mailbox reveals a leaflet.');
+  await reveal(page, 'close_mailbox');
+  await expect(action(page, 'close_mailbox')).toBeVisible();
+  await expect(action(page, 'take_advertisement')).toBeVisible();
 });
 
 test('corrupt story fails closed and offers zero-row CSV plus error metadata', async ({ page }) => {

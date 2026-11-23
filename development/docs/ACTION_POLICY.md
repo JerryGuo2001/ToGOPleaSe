@@ -1,4 +1,4 @@
-# Action policy 2.0.0
+# Action policy 3.0.0
 
 ## What the policy knows
 
@@ -44,7 +44,7 @@ Each option contains a stable symbolic ID, participant label, single parser comm
 
 An anchored mailbox can still be taken as an attempt; the original response says it is anchored. A locked grating can still be opened as an attempt. Such failures are meaningful choices and count. The policy does not assert an action will succeed.
 
-Ordering is directions (N, NE, E, SE, S, SW, W, NW, up, down, in, out, land), ascending original object ID, fixed verb order within each object, then Look/Wait. Duplicate commands are removed deterministically, keeping the first. No shuffling, frequency ranking or adaptive recommendation is used.
+Ordering is directions (N, NE, E, SE, S, SW, W, NW, up, down, in, out, land), ascending original object ID, fixed verb order within each object, then Look/Wait. Duplicate commands are removed deterministically, keeping the first. No shuffling or adaptive recommendation is used. The worker then applies the priority cap described below, retaining source order among the selected options.
 
 ## Deliberate omissions and validation limits
 
@@ -56,6 +56,23 @@ The executed integration audit covers every presented action in 23 representativ
 
 Some context entries are source-reviewed but not reached in that audit (for example bells, mirrors, dam buttons and vehicle boarding). Extending the policy requires actual-state fixtures and parser-response checks, a hidden-information review, and a policy version increment. Menu restriction itself changes participants' experience relative to typed Zork; the original mechanics remain in the VM, but inference about unrestricted Zork play is outside this instrument's validated scope.
 
-## Category presentation (2.0.0)
+## Presentation and nine-action cap (3.0.0)
 
-Move contains navigation. Action contains interactions with surroundings and general Look/Wait. Bag shows accessible carried objects and actions on held items, including examining, reading, dropping and putting them elsewhere. Category visits execute no commands, change no game state, and use no decisions. Each selected gameplay action still counts. Choice ordering within each category preserves the generator order.
+`js/action-menu.js` limits the main grid to nine actions. Bag actions are excluded from this cap. The worker applies the filter before returning a result, validating the next command, or recording `available_actions`. The interface renders retained main choices first, then bag choices; each section keeps source order.
+
+Priority is descending, with original source order breaking ties:
+
+| Priority | Meaning |
+| --- | --- |
+| 3 | An explicitly `essential: true` JSON choice, including a vital clue with no state effect. |
+| 2 | State-changing or unknown effects. Zork navigation, take/drop/open/close, reading, puzzle interactions and tool use normally remain here. |
+| 1 | Zork Wait (it advances timed events) and redundant house/window traversal alternatives. |
+| 0 | Informational/no-direct-effect choices: ordinary Look/Examine/Look inside, source-confirmed immovable Mailbox/Trophy case/Rug pickup attempts, permanently blocked front/wooden door opening, and exposed exits whose original condition or failure string prevents travel. |
+
+For JSON stories, the runtime evaluates authored effects against the current room, items and flags. Changes to location, inventory, flags, score, a once-only choice's availability, or an ending receive priority 2. Text-only actions, travel to the same room and effects already satisfied receive 0, unless explicitly marked essential. `requiresItems`, `removeItems`, or `category: "bag"` route the choice to the bag. Pickup actions remain with the surroundings.
+
+For Zork, priorities describe the direct action, excluding the universal move counter and background timed events. They do not promise that an attempted action succeeds or is completely inert. Unknown effects are not tested by running commands. `TRYTAKEBIT` is not treated as evidence of no effect: some attempted pickups change the world. Reading and contextual interactions such as moving leaves or looking under a rug remain above ordinary descriptive actions.
+
+When more than nine higher-priority main choices remain, the first nine in the fixed order are retained. This hard cap can omit meaningful choices; it is not a complete-game or puzzle-solvability guarantee. The generator's uncapped candidates remain available to engine audits, while participants and exports receive only the capped menu.
+
+The bag displays carried objects and actions on them, plus actions that use held tools (such as unlocking with a key or attacking with a weapon). All bag actions remain accessible; long lists use sidebar page controls. Viewing and paging send no game commands and use no decisions. Selecting any gameplay action still counts.

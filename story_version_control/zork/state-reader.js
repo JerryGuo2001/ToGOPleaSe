@@ -82,7 +82,7 @@ export class StateReader {
     }
     // A trap door is local-global from below but physically in the living room.
     this.encounters.set(roomId, known);
-    const exits = [];
+    const exits = [], blockedExits = [];
     const remembered = this.knownExits.get(roomId) || new Set();
     if (this.previousRoom !== null && this.previousRoom !== roomId && REVERSE[command]) {
       // The reverse of an observed transition is an informed attempt, not a new hidden exit.
@@ -109,7 +109,12 @@ export class StateReader {
       // Door exits are offered only when the door has been encountered.
       if (data.length === 5) exposed = visible.has(data[1]) || known.has(data[1]);
       if (exposed && lit) remembered.add(direction);
-      if (exposed && (lit || remembered.has(direction))) exits.push(direction);
+      if (exposed && (lit || remembered.has(direction))) {
+        exits.push(direction);
+        // A two-byte string is an explicit failure, not a destination. For
+        // conditional exits, inspect only the already exposed condition.
+        if (data.length === 2 || (data.length === 4 && data[1] >= 16 && vm.m.getUint16(vm.globals + 2 * (data[1] - 16)) === 0)) blockedExits.push(direction);
+      }
     }
     this.knownExits.set(roomId, remembered);
     this.previousRoom = roomId;
@@ -119,6 +124,7 @@ export class StateReader {
       room: { id: roomId, symbol: room.symbol, name: room.name },
       lit,
       exits,
+      blockedExits,
       visibleObjects: [...visible.values()].sort((a, b) => a.id - b.id),
       inventory: carried.map(({ id, symbol, name, parent }) => ({ id, symbol, name, parent })).sort((a, b) => a.id - b.id),
       score,
