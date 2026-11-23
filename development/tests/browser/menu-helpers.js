@@ -8,6 +8,14 @@ export async function reveal(page, id) {
     if (await page.locator('#menu-back').isVisible()) await page.locator('#menu-back').click();
     await page.locator(`.category[data-category="${category}"]`).click();
   }
+  while (!await button.isVisible() && await page.locator('#action-next').isEnabled()) {
+    await page.locator('#action-next').click();
+  }
+  if (!await button.isVisible()) {
+    while (!await button.isVisible() && await page.locator('#action-previous').isEnabled()) {
+      await page.locator('#action-previous').click();
+    }
+  }
   return button;
 }
 export const stored = (page, story = 'zork') => page.evaluate(storyId => {

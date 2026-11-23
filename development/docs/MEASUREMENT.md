@@ -10,7 +10,7 @@ Normal Zork death may resurrect the player. The adapter stops only at actual VM 
 
 ## Timing
 
-The narrative and category menu are rendered with disabled buttons. Individual options appear after a category is opened. Two `requestAnimationFrame` callbacks provide layout/render opportunities; when the document is visible, the controller samples both clocks and enables the buttons in the same task. Buttons cannot issue commands while waiting for that activation. The next actual paint is typically within one display frame, but JavaScript cannot observe the physical onset of a monitor pixel. Menus can require scrolling on small screens.
+The narrative and category menu are rendered with disabled buttons. Individual options appear after a category is opened. Two `requestAnimationFrame` callbacks provide layout/render opportunities; when the document is visible, the controller samples both clocks and enables the buttons in the same task. Buttons cannot issue commands while waiting for that activation. The next actual paint is typically within one display frame, but JavaScript cannot observe the physical onset of a monitor pixel. Long menus and inventories use page controls sized to the available viewport; only the story transcript scrolls.
 
 `timestamp_presented`, `timestamp_clicked`, `timestamp_response` are ISO UTC timestamps. The first statement in the click handler samples `performance.now()` and `new Date().toISOString()`. `rt_ms` is the difference between monotonic click and presentation samples; wall-clock jumps do not enter that subtraction. Values are not rounded or corrected.
 
@@ -53,3 +53,5 @@ Storage is best effort, with visible notification if unavailable. Browser evicti
 Version 2.0.0 replaces the flat menu with Move / Action / Bag, removes counted Inventory commands, and displays the live score. Reaction time now includes category browsing. Retain the implementation and action-policy versions when comparing conditions; v1 and v2 are different procedures.
 
 Implementation 2.1.0 adds a scrollable transcript of the opening narrative and all confirmed action/response pairs, including the final response. History reading and the “Latest response” control use no decisions and do not reset RT. The timer includes time spent rereading past turns. This is an additional change in participant information access relative to 2.0.0.
+
+Implementation 2.2.0 keeps inventory visible beside the story, places commands below it, and shows the score in the story header. Starting the session compacts the welcome header and fits the interface to the viewport. Action and inventory pagination use no decisions and do not reset RT. Page visits are recorded in `ui_events` as `<category>:page:<number>` or `inventory:page:<number>`; the full available-action array remains in each decision row. Automatic refitting on resize is not a menu visit. The persistent inventory and viewport-dependent pagination change information access relative to 2.1.0.

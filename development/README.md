@@ -61,7 +61,7 @@ See the [story authoring guide](../story_version_control/README.md) for a minima
 - Selecting a gameplay action, including Look, using an item, or an unsuccessful attempt, counts as one decision. The session still ends after **10 decisions**, or earlier if the story ends.
 - The top-right score comes from the story state. Zork's score is the original signed score global, with its original maximum of 350.
 
-Keyboard users can Tab between controls and activate them with Enter/Space. Escape returns from a category. All choices lock while a command is processing. Start does not issue a command. The main story keeps a scrollable transcript of the opening narrative and every selected action with its response. Each new turn brings the newest entry into view; scroll up to revisit earlier turns or use “Latest response” to return. Opening Bag and returning preserves the transcript and its scroll position. The complete history remains available when the session ends.
+Keyboard users can Tab between controls and activate them with Enter/Space. Escape returns from a category. All choices lock while a command is processing. Start does not issue a command. After Start, the header shrinks and the game fits the viewport: commands sit below the story, the score is inside the story panel, and inventory stays visible on the right. The main story keeps a scrollable transcript of the opening narrative and every selected action with its response. Each new turn brings the newest entry into view; scroll up to revisit earlier turns or use “Latest response” to return. Bag opens item actions without hiding the story or changing its scroll position. Long action and inventory lists use free page controls instead of additional scroll areas. The complete history remains available when the session ends.
 
 ## Timing and saved data
 
@@ -69,7 +69,7 @@ Data stays in the browser. There is no backend, analytics, or upload. Finishing 
 
 The measurement starts when the category menu is enabled after two visible animation frames. Reaction time includes category browsing and Bag viewing; the timer is not reset by either. Category visits are saved as `ui_events` in session JSON without adding CSV decision rows. CSV includes `story_id`, `menu_category`, the complete available action list, original text, inventory, score, engine moves, timestamps, timing, visibility interruptions and reproducibility metadata. See [MEASUREMENT.md](docs/MEASUREMENT.md).
 
-**The category UI changes the experimental procedure.** The category UI and Zork action-policy version are `2.0.0`; implementation `2.1.0` additionally exposes the running story history; v1 response times and decision counts that included Inventory should not be treated as the same task condition.
+**The category UI changes the experimental procedure.** The category UI and Zork action-policy version are `2.0.0`; implementation `2.1.0` exposes the running story history, and `2.2.0` adds persistent inventory and viewport-dependent pagination. These versions change participant information access; v1 response times and decision counts that included Inventory should not be treated as the same task condition.
 
 ## GitHub Pages
 

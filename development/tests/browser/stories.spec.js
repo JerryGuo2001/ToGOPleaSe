@@ -29,7 +29,8 @@ test('root entry, category navigation and Bag are free; score follows the origin
     await page.locator(`.category[data-category="${category}"]`).click();
     if (category === 'bag') {
       await expect(page.locator('#empty-bag')).toBeVisible();
-      await expect(page.locator('#story-view')).toBeHidden();
+      await expect(page.locator('#story-view')).toBeVisible();
+      await expect(page.locator('#bag-view')).toBeVisible();
     }
     await page.keyboard.press('Escape');
   }
@@ -44,7 +45,7 @@ test('root entry, category navigation and Bag are free; score follows the origin
   const text = await page.locator('#narrative').textContent();
   await page.locator('.category[data-category="bag"]').click();
   await expect(page.locator('#inventory')).toContainText('leaflet');
-  await expect(action(page, 'read_advertisement')).toBeVisible();
+  await expect(await reveal(page, 'read_advertisement')).toBeVisible();
   await expect(action(page, 'inventory')).toHaveCount(0);
   await page.locator('#menu-back').click();
   expect((await stored(page)).rows).toEqual(before.rows);

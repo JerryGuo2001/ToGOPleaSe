@@ -4,6 +4,7 @@ import { SessionStore } from './session-store.js';
 import { clock } from './timing.js';
 import { csvBlob, metadataBlob, downloadBlob } from './data_save.js';
 import { DEFAULT_STORY } from './config.js';
+import { pagedList } from './paged-list.js';
 
 const $ = id => document.getElementById(id);
 const storyId = new URLSearchParams(location.search).get('story') || DEFAULT_STORY;
@@ -14,6 +15,10 @@ const menuCopy = {
   bag: ['Your items, your options.', 'Viewing your bag is free. Using an item counts as a decision.'],
 };
 let current, selectedCategory = null, enabled = false;
+const actionPages = pagedList($('actions'), $('action-pages'), item => item.dataset.category === selectedCategory,
+  page => controller.browse(`${selectedCategory}:page:${page}`, clock.sample()));
+const inventoryPages = pagedList($('inventory'), $('inventory-pages'), () => true,
+  page => controller.browse(`inventory:page:${page}`, clock.sample()));
 let local, tab;
 try { local = localStorage; tab = sessionStorage; } catch { /* Storage can be disabled. */ }
 const store = new SessionStore(local, tab, storyId);
@@ -34,9 +39,6 @@ function showMenu(category = null, focus = false) {
   $('categories').hidden = category !== null;
   $('actions').hidden = category === null;
   $('menu-back').hidden = category === null;
-  $('story-view').hidden = category === 'bag';
-  $('bag-view').hidden = category !== 'bag';
-  $('panel-label').textContent = category === 'bag' ? 'YOUR BELONGINGS' : 'THE STORY';
   $('choice-heading').textContent = category ? menuCopy[category][0] : 'What will you do?';
   $('choice-hint').textContent = category ? menuCopy[category][1] : 'Choose a category to explore your options.';
   $('menu-note').textContent = category ? 'Choose an action · uses 1 decision' : 'Choose a category · no decision used';
@@ -46,15 +48,18 @@ function showMenu(category = null, focus = false) {
     if (!li.hidden) count++;
   }
   $('no-actions').hidden = !category || count > 0;
+  $('actions').hidden = category === null || count === 0;
   $('no-actions').textContent = category === 'bag'
-    ? 'No item actions here yet. Your bag is shown on the left; return to the categories to keep exploring.'
+    ? 'No item actions here yet. Your bag is on the right; try another category.'
     : 'No choices in this category right now. Try another category.';
   if (category && !count) $('menu-note').textContent = 'Go back to choose another category';
+  actionPages.fit(true);
   if (focus) $('choice-heading').focus({ preventScroll: true });
 }
 function setEnabled(value) {
   enabled = value;
   document.querySelectorAll('#actions .action, .category, #menu-back').forEach(button => { button.disabled = !value; });
+  actionPages.setEnabled(value);
   $('choices').setAttribute('aria-busy', String(!value));
   $('turn-status').textContent = value ? 'Your turn' : controller.status === 'ready' ? 'Get ready' : 'Please wait…';
 }
@@ -70,6 +75,7 @@ function renderInventory(items) {
     }
     li.append(number, name); return li;
   }));
+  inventoryPages.fit(true);
 }
 function showLatestResponse() {
   const transcript = $('transcript');
@@ -155,10 +161,15 @@ const view = {
     $('progress').textContent = `Ready · ${DECISION_LIMIT} decisions`;
     $('notice').textContent = 'Explore one choice at a time. Move through the world, interact with what you find, or check your bag for free. After 10 decisions, your session data downloads.';
   },
-  started() { $('start').hidden = true; $('notice').textContent = ''; $('recovery').hidden = true; },
+  started() {
+    document.body.classList.add('session-active');
+    $('start').hidden = true; $('notice').textContent = ''; $('recovery').hidden = true;
+    window.scrollTo(0, 0);
+  },
   enable() { setEnabled(true); },
   disable() { setEnabled(false); },
   complete(session) {
+    document.body.classList.add('session-complete');
     $('start').hidden = true; $('choices').hidden = true; $('notice').textContent = ''; $('completion').hidden = false;
     $('progress').textContent = `${session.rows.length} / ${DECISION_LIMIT} decisions recorded`;
     $('completion-heading').textContent = session.status === 'completed' ? 'Session complete' : 'Session ended early';
