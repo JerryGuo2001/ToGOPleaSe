@@ -4,10 +4,8 @@ export const ready = page => expect(page.locator('#choices')).toHaveAttribute('a
 export async function reveal(page, id) {
   const button = action(page, id);
   await expect(button).toBeEnabled();
-  if (await button.getAttribute('data-category') === 'bag') {
-    while (!await button.isVisible() && await page.locator('#bag-action-next').isEnabled()) await page.locator('#bag-action-next').click();
-    while (!await button.isVisible() && await page.locator('#bag-action-previous').isEnabled()) await page.locator('#bag-action-previous').click();
-  }
+  const category = page.locator(`#category-${await button.getAttribute('data-category')}`);
+  if (await category.getAttribute('aria-selected') !== 'true') await category.click();
   await expect(button).toBeVisible();
   return button;
 }

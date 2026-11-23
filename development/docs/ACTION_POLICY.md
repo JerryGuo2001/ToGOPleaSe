@@ -1,4 +1,4 @@
-# Action policy 3.0.0
+# Action policy 3.1.0
 
 ## What the policy knows
 
@@ -56,9 +56,9 @@ The executed integration audit covers every presented action in 23 representativ
 
 Some context entries are source-reviewed but not reached in that audit (for example bells, mirrors, dam buttons and vehicle boarding). Extending the policy requires actual-state fixtures and parser-response checks, a hidden-information review, and a policy version increment. Menu restriction itself changes participants' experience relative to typed Zork; the original mechanics remain in the VM, but inference about unrestricted Zork play is outside this instrument's validated scope.
 
-## Presentation and nine-action cap (3.0.0)
+## Presentation and nine-choice category limits (3.1.0)
 
-`js/action-menu.js` limits the main grid to nine actions. Bag actions are excluded from this cap. The worker applies the filter before returning a result, validating the next command, or recording `available_actions`. The interface renders retained main choices first, then bag choices; each section keeps source order.
+`js/action-menu.js` independently limits Move, Action and Bag to nine choices each (up to 27 total). The worker applies the filter before returning a result, validating the next command, or recording `available_actions`. The returned array uses Move, Action, Bag order and preserves source order within each category. The interface shows all retained choices for the selected tab in the same grid below the story.
 
 Priority is descending, with original source order breaking ties:
 
@@ -73,6 +73,6 @@ For JSON stories, the runtime evaluates authored effects against the current roo
 
 For Zork, priorities describe the direct action, excluding the universal move counter and background timed events. They do not promise that an attempted action succeeds or is completely inert. Unknown effects are not tested by running commands. `TRYTAKEBIT` is not treated as evidence of no effect: some attempted pickups change the world. Reading and contextual interactions such as moving leaves or looking under a rug remain above ordinary descriptive actions.
 
-When more than nine higher-priority main choices remain, the first nine in the fixed order are retained. This hard cap can omit meaningful choices; it is not a complete-game or puzzle-solvability guarantee. The generator's uncapped candidates remain available to engine audits, while participants and exports receive only the capped menu.
+When more than nine higher-priority choices remain in one category, the first nine in the fixed order are retained. A category never consumes another category's allowance. This hard cap can omit meaningful choices; it is not a complete-game or puzzle-solvability guarantee. The generator's uncapped candidates remain available to engine audits, while participants and exports receive only the capped menu.
 
-The bag displays carried objects and actions on them, plus actions that use held tools (such as unlocking with a key or attacking with a weapon). All bag actions remain accessible; long lists use sidebar page controls. Viewing and paging send no game commands and use no decisions. Selecting any gameplay action still counts.
+The right sidebar displays carried objects. Their actions, plus actions that use held tools (such as unlocking with a key or attacking with a weapon), appear in the Bag tab below the story. Like Move and Action, Bag retains at most nine choices without pagination. Long inventories use sidebar page controls. Switching tabs and viewing inventory send no game commands and use no decisions. Selecting any gameplay action still counts.

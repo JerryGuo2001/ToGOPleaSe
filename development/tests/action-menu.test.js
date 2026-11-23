@@ -6,17 +6,27 @@ import { generateActions } from '../../story_version_control/zork/action-generat
 import { fresh } from './helpers.js';
 
 const choice = (id, menuPriority = 2, menuGroup = 'action') => ({ id, label: id, command: id, menuPriority, menuGroup });
-test('nine main choices prioritize effects, preserve tie order, and do not cap bag actions', () => {
-  const information = Array.from({ length: 8 }, (_, i) => choice(`look_${i}`, 0));
-  const changing = Array.from({ length: 8 }, (_, i) => choice(`change_${i}`));
-  const essential = choice('read_clue', 3);
-  const bag = Array.from({ length: 12 }, (_, i) => choice(`use_${i}`, 0, 'bag'));
-  const actions = [...information, ...bag, ...changing, essential];
+test('each category independently keeps nine choices, prioritizing effects and preserving source order', () => {
+  const groups = ['move', 'action', 'bag'];
+  const actions = groups.flatMap(group => [
+    ...Array.from({ length: 12 }, (_, i) => choice(`${group}_information_${i}`, 0, group)),
+    ...Array.from({ length: 9 }, (_, i) => choice(`${group}_change_${i}`, 2, group)),
+    choice(`${group}_clue`, 3, group),
+  ]);
   const snapshot = structuredClone(actions);
-  assert.deepEqual(selectMenu(actions).map(a => a.id), [...changing, essential, ...bag].map(a => a.id));
+  const selected = selectMenu(actions);
+  assert.equal(selected.length, 27);
+  for (const group of groups) {
+    assert.deepEqual(selected.filter(a => menuGroup(a) === group).map(a => a.id), [
+      ...Array.from({ length: 8 }, (_, i) => `${group}_change_${i}`), `${group}_clue`,
+    ]);
+  }
   assert.deepEqual(actions, snapshot);
-  assert.deepEqual(selectMenu(changing.slice(0, 3)), changing.slice(0, 3));
-  assert.deepEqual(selectMenu([...changing, choice('ninth'), choice('tenth')]).map(a => a.id), [...changing.map(a => a.id), 'ninth']);
+  const small = groups.flatMap(group => [choice(`${group}_look`, 0, group), choice(`${group}_change`, 2, group)]);
+  assert.deepEqual(selectMenu(small), small);
+  const unknown = Array.from({ length: 10 }, (_, i) => ({ id: `unknown_${i}`, category: 'interaction' }));
+  assert.deepEqual(selectMenu(unknown), unknown.slice(0, 9));
+  assert.deepEqual(selectMenu([]), []);
 });
 
 test('text priorities reflect current state, including flags, once-only effects, endings and essential clues', () => {
@@ -55,7 +65,7 @@ test('capped Zork menus retain the mailbox, window, lantern and trap-door progre
     const memory = Array.from(game.vm.ram.getUint8Array(0, game.vm.staticmem));
     const rng = game.vm.xorshift_seed;
     const actions = selectMenu(generateActions(game.getAvailableState()));
-    assert.ok(actions.filter(a => menuGroup(a) !== 'bag').length <= 9);
+    for (const group of ['move', 'action', 'bag']) assert.ok(actions.filter(a => menuGroup(a) === group).length <= 9);
     const selected = actions.find(action => action.id === id);
     assert.ok(selected, `${id} should remain available in ${game.getAvailableState().room.name}`);
     assert.deepEqual(Array.from(game.vm.ram.getUint8Array(0, game.vm.staticmem)), memory);

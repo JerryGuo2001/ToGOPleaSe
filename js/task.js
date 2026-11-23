@@ -9,9 +9,8 @@ import { menuGroup } from './action-menu.js';
 
 const $ = id => document.getElementById(id);
 const storyId = new URLSearchParams(location.search).get('story') || DEFAULT_STORY;
-let current;
-const bagActionPages = pagedList($('bag-actions'), $('bag-action-pages'), () => true,
-  page => controller.browse(`bag:page:${page}`, clock.sample()));
+let current, selectedCategory = 'move';
+const categories = [...$('categories').querySelectorAll('[role="tab"]')];
 const inventoryPages = pagedList($('inventory'), $('inventory-pages'), () => true,
   page => controller.browse(`inventory:page:${page}`, clock.sample()));
 let local, tab;
@@ -29,14 +28,29 @@ if (previous) {
 }
 
 function setEnabled(value) {
-  document.querySelectorAll('.action').forEach(button => { button.disabled = !value; });
-  bagActionPages.setEnabled(value);
+  document.querySelectorAll('.action, #categories button').forEach(button => { button.disabled = !value; });
   $('choices').setAttribute('aria-busy', String(!value));
-  $('bag-controls').setAttribute('aria-busy', String(!value));
   $('turn-status').textContent = value ? 'Your turn' : controller.status === 'ready' ? 'Get ready' : 'Please wait…';
 }
+function showCategory(category) {
+  selectedCategory = category;
+  for (const button of categories) {
+    const selected = button.dataset.category === category;
+    button.setAttribute('aria-selected', String(selected));
+    button.tabIndex = selected ? 0 : -1;
+  }
+  let count = 0;
+  for (const item of $('actions').children) {
+    item.hidden = item.firstElementChild.dataset.category !== category;
+    if (!item.hidden) count++;
+  }
+  $('action-panel').setAttribute('aria-labelledby', `category-${category}`);
+  $('no-actions').textContent = { move: 'No moves available here.', action: 'No actions available here.', bag: 'No item actions available here.' }[category];
+  $('no-actions').hidden = count > 0;
+  $('actions').hidden = count === 0;
+}
 function renderActions(actions) {
-  const main = [], bag = [];
+  const choices = [];
   for (const action of actions) {
     const li = document.createElement('li'), button = document.createElement('button');
     const category = menuGroup(action);
@@ -48,14 +62,13 @@ function renderActions(actions) {
       controller.select(action.id, clicked, category);
     });
     li.append(button);
-    (category === 'bag' ? bag : main).push(li);
+    choices.push(li);
   }
-  $('actions').replaceChildren(...main);
-  $('bag-actions').replaceChildren(...bag);
-  $('no-actions').hidden = main.length > 0;
-  $('no-bag-actions').hidden = bag.length > 0;
-  $('bag-actions').hidden = bag.length === 0;
-  bagActionPages.fit(true);
+  $('actions').replaceChildren(...choices);
+  for (const button of categories) {
+    button.querySelector('.category-count').textContent = actions.filter(action => menuGroup(action) === button.dataset.category).length;
+  }
+  showCategory(selectedCategory);
 }
 function renderInventory(items) {
   $('empty-bag').hidden = items.length > 0;
@@ -135,7 +148,7 @@ const view = {
   ready() {
     $('start').hidden = false;
     $('progress').textContent = `Ready · ${DECISION_LIMIT} decisions`;
-    $('notice').textContent = 'Explore one choice at a time. Choose from the actions below the story, or use items in your bag. Viewing your bag is free. After 10 decisions, your session data downloads.';
+    $('notice').textContent = 'Explore one choice at a time. Choose Move, Action or Bag below the story, then pick an option. Each category shows up to 9 choices. Browsing categories and viewing your inventory are free. After 10 decisions, your session data downloads.';
   },
   started() {
     document.body.classList.add('session-active');
@@ -146,7 +159,7 @@ const view = {
   disable() { setEnabled(false); },
   complete(session) {
     document.body.classList.add('session-complete');
-    $('start').hidden = true; $('choices').hidden = true; $('bag-controls').hidden = true; $('notice').textContent = ''; $('completion').hidden = false;
+    $('start').hidden = true; $('choices').hidden = true; $('notice').textContent = ''; $('completion').hidden = false;
     $('progress').textContent = `${session.rows.length} / ${DECISION_LIMIT} decisions recorded`;
     $('completion-heading').textContent = session.status === 'completed' ? 'Session complete' : 'Session ended early';
     $('completion-message').textContent = session.status === 'completed'
@@ -162,6 +175,19 @@ const view = {
   },
 };
 const controller = new ExperimentController({ game: new GameAdapter({ storyId }), view, store });
+for (const button of categories) {
+  button.onclick = () => {
+    if (controller.browse(button.dataset.category, clock.sample())) showCategory(button.dataset.category);
+  };
+  button.onkeydown = event => {
+    const index = categories.indexOf(button);
+    const next = { ArrowRight: (index + 1) % 3, ArrowLeft: (index + 2) % 3, Home: 0, End: 2 }[event.key];
+    if (next === undefined || button.disabled) return;
+    event.preventDefault();
+    categories[next].focus({ preventScroll: true });
+    categories[next].click();
+  };
+}
 $('start').onclick = () => controller.start();
 $('latest-response').onclick = () => { showLatestResponse(); $('narrative').focus({ preventScroll: true }); };
 $('download').onclick = () => controller.downloadCSV();

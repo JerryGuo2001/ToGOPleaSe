@@ -8,7 +8,7 @@ async function choose(page, id) {
   await ready(page);
 }
 
-test('all main choices are visible and bag actions stay beside the story; score follows the original engine', async ({ page }) => {
+test('Move, Action and Bag show choices below the story while inventory stays visible; score follows the engine', async ({ page }) => {
   const commands = [];
   await page.addInitScript(() => {
     window.sentCommands = [];
@@ -28,14 +28,21 @@ test('all main choices are visible and bag actions stay beside the story; score 
   await ready(page);
   await expect(page.locator('#empty-bag')).toBeVisible();
   await expect(page.locator('#story-view')).toBeVisible();
-  await expect(page.locator('#actions .action:visible')).toHaveCount(9);
+  await expect(page.locator('#categories [role="tab"]')).toHaveCount(3);
+  await expect(page.locator('#category-move')).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('.masthead')).toBeHidden();
   await expect(page.locator('.titlebar')).toBeHidden();
   await expect(page.locator('.session-bar')).toBeHidden();
   await page.locator('#bag-view').hover();
+  for (const category of ['bag', 'action', 'move']) {
+    await page.locator(`#category-${category}`).click();
+    await expect(page.locator('#bag-view')).toBeVisible();
+    await expect(page.locator('#story-view')).toBeVisible();
+    expect(await page.locator('#actions .action:visible').count()).toBeLessThanOrEqual(9);
+  }
   const browsed = await stored(page);
   expect(browsed.rows).toEqual(initial.rows);
-  expect(browsed.ui_events).toHaveLength(0);
+  expect(browsed.ui_events.map(event => event.category)).toEqual(['bag', 'action', 'move']);
   expect(await page.evaluate(() => window.sentCommands)).toEqual(commands);
   await expect(page.locator('#progress')).toHaveText('Decision 1 / 10');
   await choose(page, 'open_mailbox');
@@ -72,7 +79,7 @@ test('a JSON-only story uses the same UI, inventory, score and export with isola
   await expect(page.locator('#inventory')).toContainText('Lantern');
   await expect(page.locator('#score')).toHaveText('10');
   const downloadEvent = page.waitForEvent('download');
-  await action(page, 'light_beacon').click();
+  await (await reveal(page, 'light_beacon')).click();
   await expect(page.locator('#score')).toHaveText('20');
   await expect(page.locator('#completion-message')).toContainText('game has ended');
   await expect(page.locator('.transcript-entry')).toHaveCount(6);
@@ -99,12 +106,21 @@ test('missing and invalid story folders show a useful error', async ({ page }) =
   }
 });
 
-test('mobile bag actions work directly from the sidebar with the keyboard', async ({ page }) => {
+test('mobile category tabs and bag actions below the story work with the keyboard', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
   await page.locator('#start').click();
   await choose(page, 'open_mailbox'); await choose(page, 'take_advertisement');
-  await (await reveal(page, 'read_advertisement')).focus();
+  await page.locator('#category-action').focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#category-bag')).toBeFocused();
+  await expect(page.locator('#category-bag')).toHaveAttribute('aria-selected', 'true');
+  await expect(action(page, 'read_advertisement')).toBeVisible();
+  await page.keyboard.press('Home');
+  await expect(page.locator('#category-move')).toBeFocused();
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.locator('#category-bag')).toBeFocused();
+  await action(page, 'read_advertisement').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#inventory')).toContainText('leaflet');
   await ready(page);

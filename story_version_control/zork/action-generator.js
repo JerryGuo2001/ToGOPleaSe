@@ -1,6 +1,6 @@
 import { has } from './state-reader.js';
 
-export const ACTION_GENERATOR_VERSION = '3.0.0';
+export const ACTION_GENERATOR_VERSION = '3.1.0';
 const key = object => object.symbol.toLowerCase().replaceAll('-', '_');
 const nounOverrides = { ADVERTISEMENT: 'leaflet', RUG: 'rug', LAMP: 'brass lantern', WATER: 'water', 'GLOBAL-WATER': 'water', 'KITCHEN-WINDOW': 'kitchen window', 'FRONT-DOOR': 'front door', 'TRAP-DOOR': 'trap door' };
 export const noun = object => nounOverrides[object.symbol] || object.noun;

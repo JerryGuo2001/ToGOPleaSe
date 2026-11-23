@@ -26,7 +26,7 @@ export async function loadStory(id) {
     metadata: {
       id, title: story.title, subtitle: story.subtitle || 'An interactive story',
       game_version: story.version, story_sha256: story.sha256 || hash, manifest_sha256: hash,
-      action_generator_version: story.actionPolicyVersion || 'text-2.0.0',
+      action_generator_version: story.actionPolicyVersion || 'text-2.1.0',
       interpreter_version: story.interpreterVersion || 'text-engine 1.0.0',
       random_seed: story.randomSeed ?? null, max_score: story.maxScore ?? null,
     },
