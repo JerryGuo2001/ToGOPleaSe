@@ -54,9 +54,9 @@ See the [story authoring guide](../story_version_control/README.md) for a minima
 
 ## How the task works
 
-- **Move / Action / Bag** tabs appear below the story. Each category independently retains at most **nine choices**, all visible together in a 3×3 grid when selected. Switching categories is free; choices do not paginate.
+- **Move / Action / Bag** appear as three large buttons below the story at the beginning of each decision. Selecting one opens up to **nine choices** in a 3×3 grid and a matching **Back** card. Back returns to the category menu and does not consume a choice slot. Category browsing is free; choices do not paginate.
 - When a category exceeds nine choices, the menu drops informational/no-effect options first. State-changing and unknown effects rank higher; ties keep the source order. See [ACTION_POLICY.md](docs/ACTION_POLICY.md) for the exact priorities and limits.
-- Your inventory stays visible on the right. Reading, dropping, using held items, and using carried tools belong in the **Bag tab below the story**. The inventory has free page controls when it cannot fit in the sidebar.
+- Your inventory stays visible on the right. Reading, dropping, using held items, and using carried tools belong in the **Bag category below the story**. The inventory has free page controls when it cannot fit in the sidebar.
 - Viewing your bag, changing its page, and reading story history use **no decision and no game move**. Selecting any gameplay action counts as one decision, including unsuccessful attempts. Sessions end after **10 decisions**, or earlier if the story ends.
 - The score inside the story panel comes from the story state. Zork uses its original signed score global and maximum of 350.
 
@@ -68,7 +68,7 @@ Data stays in the browser. There is no backend, analytics, or upload. Finishing 
 
 The measurement starts when actions are enabled after two visible animation frames. Reaction time includes reading history, viewing inventory, and switching categories; these do not restart the timer. Category visits and inventory page visits are saved in session JSON `ui_events` without CSV decision rows. CSV contains the exact retained choices across all three categories, original text, inventory, score, timestamps and version metadata. Omitted choices are neither executable through the worker nor recorded as available. See [MEASUREMENT.md](docs/MEASUREMENT.md).
 
-**Implementation and Zork action-policy version `3.1.0` change the experimental procedure.** Move, Action and Bag each have an independent nine-choice cap. All three use the action area below the story; the selected tab persists between decisions and starts on Move. This differs from v3.0's combined main-action cap and sidebar item actions, and must be distinguished when comparing conditions.
+**Implementation `3.2.0` starts every decision at the category menu**, with a large Back card in each submenu. Reaction time includes category selection and returning with Back or Escape. The nine-choice limits and Zork action policy remain `3.1.0`; the game choices are unchanged from v3.1, but their presentation differs from its persistent tabs.
 
 ## GitHub Pages
 

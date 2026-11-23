@@ -76,6 +76,9 @@ test('slow actual worker command locks clicks and does not contaminate reaction 
   await start(page);
   await (await reveal(page, 'open_mailbox')).dblclick();
   await expect(page.locator('#choices')).toHaveAttribute('aria-busy', 'true');
+  await expect(page.locator('#menu-back')).toBeDisabled();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#choices')).toHaveAttribute('data-menu', 'action');
   await expect(action(page, 'take_advertisement')).toBeEnabled();
   const session = await stored(page);
   expect(session.rows).toHaveLength(1);

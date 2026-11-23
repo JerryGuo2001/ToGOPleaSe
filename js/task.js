@@ -9,8 +9,8 @@ import { menuGroup } from './action-menu.js';
 
 const $ = id => document.getElementById(id);
 const storyId = new URLSearchParams(location.search).get('story') || DEFAULT_STORY;
-let current, selectedCategory = 'move';
-const categories = [...$('categories').querySelectorAll('[role="tab"]')];
+let current, selectedCategory = null;
+const categories = [...$('categories').querySelectorAll('button')];
 const inventoryPages = pagedList($('inventory'), $('inventory-pages'), () => true,
   page => controller.browse(`inventory:page:${page}`, clock.sample()));
 let local, tab;
@@ -28,26 +28,26 @@ if (previous) {
 }
 
 function setEnabled(value) {
-  document.querySelectorAll('.action, #categories button').forEach(button => { button.disabled = !value; });
+  document.querySelectorAll('.action, .menu-card').forEach(button => { button.disabled = !value; });
   $('choices').setAttribute('aria-busy', String(!value));
   $('turn-status').textContent = value ? 'Your turn' : controller.status === 'ready' ? 'Get ready' : 'Please wait…';
 }
-function showCategory(category) {
+function showCategory(category, focus = false) {
   selectedCategory = category;
-  for (const button of categories) {
-    const selected = button.dataset.category === category;
-    button.setAttribute('aria-selected', String(selected));
-    button.tabIndex = selected ? 0 : -1;
-  }
+  $('choices').dataset.menu = category || 'categories';
+  $('categories').hidden = category !== null;
+  $('action-panel').hidden = category === null;
+  $('choice-heading').textContent = { move: 'Move', action: 'Action', bag: 'Bag' }[category] || 'What will you do?';
+  $('menu-note').textContent = category ? 'Choose an action · uses 1 decision. Back is free.' : 'Choose a category · no decision used';
   let count = 0;
   for (const item of $('actions').children) {
     item.hidden = item.firstElementChild.dataset.category !== category;
     if (!item.hidden) count++;
   }
-  $('action-panel').setAttribute('aria-labelledby', `category-${category}`);
-  $('no-actions').textContent = { move: 'No moves available here.', action: 'No actions available here.', bag: 'No item actions available here.' }[category];
-  $('no-actions').hidden = count > 0;
+  $('no-actions').textContent = { move: 'No moves available here.', action: 'No actions available here.', bag: 'No item actions available here.' }[category] || '';
+  $('no-actions').hidden = !category || count > 0;
   $('actions').hidden = count === 0;
+  if (focus) $('choice-heading').focus({ preventScroll: true });
 }
 function renderActions(actions) {
   const choices = [];
@@ -66,9 +66,10 @@ function renderActions(actions) {
   }
   $('actions').replaceChildren(...choices);
   for (const button of categories) {
-    button.querySelector('.category-count').textContent = actions.filter(action => menuGroup(action) === button.dataset.category).length;
+    const count = actions.filter(action => menuGroup(action) === button.dataset.category).length;
+    button.querySelector('.category-count').textContent = `${count} ${count === 1 ? 'choice' : 'choices'}`;
   }
-  showCategory(selectedCategory);
+  showCategory(null);
 }
 function renderInventory(items) {
   $('empty-bag').hidden = items.length > 0;
@@ -176,8 +177,9 @@ const view = {
 };
 const controller = new ExperimentController({ game: new GameAdapter({ storyId }), view, store });
 for (const button of categories) {
-  button.onclick = () => {
-    if (controller.browse(button.dataset.category, clock.sample())) showCategory(button.dataset.category);
+  button.onclick = event => {
+    if (event.detail > 1) return;
+    if (controller.browse(button.dataset.category, clock.sample())) showCategory(button.dataset.category, true);
   };
   button.onkeydown = event => {
     const index = categories.indexOf(button);
@@ -185,9 +187,21 @@ for (const button of categories) {
     if (next === undefined || button.disabled) return;
     event.preventDefault();
     categories[next].focus({ preventScroll: true });
-    categories[next].click();
   };
 }
+function backToCategories() {
+  if (!selectedCategory || !controller.browse('categories', clock.sample())) return;
+  const previousCategory = selectedCategory;
+  showCategory(null);
+  $(`category-${previousCategory}`).focus({ preventScroll: true });
+}
+$('menu-back').onclick = backToCategories;
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && selectedCategory) {
+    event.preventDefault();
+    backToCategories();
+  }
+});
 $('start').onclick = () => controller.start();
 $('latest-response').onclick = () => { showLatestResponse(); $('narrative').focus({ preventScroll: true }); };
 $('download').onclick = () => controller.downloadCSV();

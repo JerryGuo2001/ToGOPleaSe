@@ -8,7 +8,7 @@ async function choose(page, id) {
   await ready(page);
 }
 
-test('Move, Action and Bag show choices below the story while inventory stays visible; score follows the engine', async ({ page }) => {
+test('the category menu comes first, Back is free, and each decision returns to the category menu', async ({ page }) => {
   const commands = [];
   await page.addInitScript(() => {
     window.sentCommands = [];
@@ -28,24 +28,34 @@ test('Move, Action and Bag show choices below the story while inventory stays vi
   await ready(page);
   await expect(page.locator('#empty-bag')).toBeVisible();
   await expect(page.locator('#story-view')).toBeVisible();
-  await expect(page.locator('#categories [role="tab"]')).toHaveCount(3);
-  await expect(page.locator('#category-move')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#categories button:visible')).toHaveCount(3);
+  await expect(page.locator('#actions .action:visible')).toHaveCount(0);
+  await expect(page.locator('#menu-back')).toBeHidden();
   await expect(page.locator('.masthead')).toBeHidden();
   await expect(page.locator('.titlebar')).toBeHidden();
   await expect(page.locator('.session-bar')).toBeHidden();
   await page.locator('#bag-view').hover();
   for (const category of ['bag', 'action', 'move']) {
     await page.locator(`#category-${category}`).click();
+    await expect(page.locator('#categories')).toBeHidden();
+    await expect(page.locator('#choice-heading')).toHaveText({ move: 'Move', action: 'Action', bag: 'Bag' }[category]);
+    await expect(page.locator('#menu-back.menu-card')).toBeVisible();
+    if (category === 'bag') await expect(page.locator('#no-actions')).toHaveText('No item actions available here.');
     await expect(page.locator('#bag-view')).toBeVisible();
     await expect(page.locator('#story-view')).toBeVisible();
     expect(await page.locator('#actions .action:visible').count()).toBeLessThanOrEqual(9);
+    await page.locator('#menu-back').click();
+    await expect(page.locator(`#category-${category}`)).toBeFocused();
+    await expect(page.locator('#categories button:visible')).toHaveCount(3);
   }
   const browsed = await stored(page);
   expect(browsed.rows).toEqual(initial.rows);
-  expect(browsed.ui_events.map(event => event.category)).toEqual(['bag', 'action', 'move']);
+  expect(browsed.ui_events.map(event => event.category)).toEqual(['bag', 'categories', 'action', 'categories', 'move', 'categories']);
   expect(await page.evaluate(() => window.sentCommands)).toEqual(commands);
   await expect(page.locator('#progress')).toHaveText('Decision 1 / 10');
   await choose(page, 'open_mailbox');
+  await expect(page.locator('#categories button:visible')).toHaveCount(3);
+  await expect(page.locator('#actions .action:visible')).toHaveCount(0);
   await choose(page, 'take_advertisement');
   const before = await stored(page);
   const text = await page.locator('#narrative').textContent();
@@ -106,7 +116,7 @@ test('missing and invalid story folders show a useful error', async ({ page }) =
   }
 });
 
-test('mobile category tabs and bag actions below the story work with the keyboard', async ({ page }) => {
+test('mobile category buttons, Back and Escape work with the keyboard', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
   await page.locator('#start').click();
@@ -114,17 +124,27 @@ test('mobile category tabs and bag actions below the story work with the keyboar
   await page.locator('#category-action').focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('#category-bag')).toBeFocused();
-  await expect(page.locator('#category-bag')).toHaveAttribute('aria-selected', 'true');
+  await expect(action(page, 'read_advertisement')).toBeHidden();
+  await page.keyboard.press('Enter');
   await expect(action(page, 'read_advertisement')).toBeVisible();
+  await page.locator('#menu-back').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#category-bag')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#choice-heading')).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#category-bag')).toBeFocused();
   await page.keyboard.press('Home');
   await expect(page.locator('#category-move')).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await expect(page.locator('#category-bag')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await page.screenshot({ path: 'test-results/mobile-bag.png', fullPage: true });
   await action(page, 'read_advertisement').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#inventory')).toContainText('leaflet');
   await ready(page);
+  await expect(page.locator('#categories button:visible')).toHaveCount(3);
   expect((await stored(page)).rows).toHaveLength(3);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.screenshot({ path: 'test-results/mobile-bag.png', fullPage: true });
 });

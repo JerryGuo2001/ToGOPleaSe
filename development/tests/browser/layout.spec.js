@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { action, reveal, ready, stored } from './menu-helpers.js';
+import { action, reveal, ready, stored, openCategory } from './menu-helpers.js';
 
 async function expectFits(page) {
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
@@ -52,11 +52,18 @@ for (const viewport of [
     expect(commands.y).toBeGreaterThanOrEqual(story.y + story.height);
     await expect(page.locator('.story-panel #score')).toHaveText('0');
     await expect(page.locator('#action-pages, #bag-action-pages, #bag-actions')).toHaveCount(0);
-    await expect(page.locator('#categories [role="tab"]')).toHaveCount(3);
+    await expect(page.locator('#categories button:visible')).toHaveCount(3);
+    await expect(page.locator('#action-panel')).toBeHidden();
     await expectFits(page);
+    await page.screenshot({ path: `test-results/categories-${viewport.width}x${viewport.height}.png` });
     for (const id of ['take_key', 'to_cottage', 'take_lantern', 'unlock_door']) {
-      await (await reveal(page, id)).click();
+      const choice = await reveal(page, id);
+      await expect(page.locator('#menu-back')).toBeVisible();
+      await expectFits(page);
+      await choice.click();
       await ready(page);
+      await expect(page.locator('#categories button:visible')).toHaveCount(3);
+      await expect(page.locator('#action-panel')).toBeHidden();
       await expect(page.locator('#bag-view')).toBeVisible();
       await expect(page.locator('#story-view')).toBeVisible();
       await expectFits(page);
@@ -73,7 +80,7 @@ for (const viewport of [
   });
 }
 
-test('each category shows nine choices without paging, preserves RT, and rejects omitted commands', async ({ page }) => {
+test('each submenu shows nine choices and a separate Back card, preserves RT, and rejects omitted commands', async ({ page }) => {
   await page.setViewportSize({ width: 1024, height: 600 });
   await page.route('**/lantern-cove/story.json', async route => {
     const story = await (await route.fetch()).json();
@@ -110,22 +117,31 @@ test('each category shows nine choices without paging, preserves RT, and rejects
   for (const viewport of [{ width: 1280, height: 720 }, { width: 390, height: 844 }, { width: 320, height: 568 }, { width: 844, height: 390 }]) {
     await page.setViewportSize(viewport);
     for (const category of ['move', 'action', 'bag']) {
-      await page.locator(`#category-${category}`).click();
+      await openCategory(page, category);
+      await expect(page.locator('#categories')).toBeHidden();
+      await expect(page.locator('#menu-back.menu-card')).toBeVisible();
       await expect(page.locator('#actions .action:visible')).toHaveCount(9);
       await expect(page.locator(`#actions .action[data-category="${category}"]:visible`)).toHaveCount(9);
       await expectFits(page);
       await page.screenshot({ path: `test-results/nine-${category}-${viewport.width}.png` });
+      await page.locator('#menu-back').click();
+      await expect(page.locator(`#category-${category}`)).toBeFocused();
+      await expect(page.locator('#actions .action:visible')).toHaveCount(0);
+      await expect(page.locator('#categories button:visible')).toHaveCount(3);
+      await expectFits(page);
     }
   }
   expect((await stored(page, 'lantern-cove')).rows).toHaveLength(0);
   const displayed = await page.locator('.action').evaluateAll(buttons => buttons.map(button => button.dataset.actionId));
   await (await reveal(page, 'change_8')).click();
   await ready(page);
+  await expect(page.locator('#categories button:visible')).toHaveCount(3);
   const after = await stored(page, 'lantern-cove');
   expect(after.rows).toHaveLength(1);
   expect(after.rows[0].available_actions.map(action => action.id)).toEqual(displayed);
   expect(after.rows[0].performance_presented_ms).toBeLessThanOrEqual(beforeBrowsing);
   for (const category of ['move', 'action', 'bag']) expect(after.ui_events.some(event => event.category === category)).toBe(true);
+  expect(after.ui_events.some(event => event.category === 'categories')).toBe(true);
   expect(after.ui_events.some(event => event.category.startsWith('inventory:page:'))).toBe(true);
   const errors = await page.evaluate(() => new Promise(resolve => {
     const omitted = ['look_0', 'inspect_0', 'move_9', 'change_9', 'use_9'], errors = [];

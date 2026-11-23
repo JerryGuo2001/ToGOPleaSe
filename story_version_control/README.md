@@ -75,7 +75,7 @@ Write paragraphs using `\n\n` inside JSON strings. Text is rendered as plain tex
 | --- | --- |
 | `id` | Unique within its room; starts with a lowercase letter, followed by lowercase letters, numbers, `_` or `-`. Recorded as the command. |
 | `label` | Button text. |
-| `category` | `"navigation"` appears under Move, `"interaction"` (default) under Action, and `"bag"` under Bag. All three tabs use the grid below the story. Choices requiring or removing held items also appear under Bag. |
+| `category` | `"navigation"` appears under Move, `"interaction"` (default) under Action, and `"bag"` under Bag. Each category opens its choices in the grid below the story with a separate Back card. Choices requiring or removing held items also appear under Bag. |
 | `essential` | Optional boolean. `true` prioritizes a vital choice (including a clue with no state effect) when its category exceeds nine choices. |
 | `text` | Optional response after selecting this choice. |
 | `to` | Optional destination room ID. Its full narrative appears after the response. |

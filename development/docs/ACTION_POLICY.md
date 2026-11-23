@@ -58,7 +58,7 @@ Some context entries are source-reviewed but not reached in that audit (for exam
 
 ## Presentation and nine-choice category limits (3.1.0)
 
-`js/action-menu.js` independently limits Move, Action and Bag to nine choices each (up to 27 total). The worker applies the filter before returning a result, validating the next command, or recording `available_actions`. The returned array uses Move, Action, Bag order and preserves source order within each category. The interface shows all retained choices for the selected tab in the same grid below the story.
+`js/action-menu.js` independently limits Move, Action and Bag to nine choices each (up to 27 total). The worker applies the filter before returning a result, validating the next command, or recording `available_actions`. The returned array uses Move, Action, Bag order and preserves source order within each category. The interface starts each decision with Move / Action / Bag buttons. Selecting a category shows all its retained choices in the grid below the story, alongside a Back card. Back is free UI navigation and does not count toward the nine-choice limit.
 
 Priority is descending, with original source order breaking ties:
 
@@ -75,4 +75,4 @@ For Zork, priorities describe the direct action, excluding the universal move co
 
 When more than nine higher-priority choices remain in one category, the first nine in the fixed order are retained. A category never consumes another category's allowance. This hard cap can omit meaningful choices; it is not a complete-game or puzzle-solvability guarantee. The generator's uncapped candidates remain available to engine audits, while participants and exports receive only the capped menu.
 
-The right sidebar displays carried objects. Their actions, plus actions that use held tools (such as unlocking with a key or attacking with a weapon), appear in the Bag tab below the story. Like Move and Action, Bag retains at most nine choices without pagination. Long inventories use sidebar page controls. Switching tabs and viewing inventory send no game commands and use no decisions. Selecting any gameplay action still counts.
+The right sidebar displays carried objects. Their actions, plus actions that use held tools (such as unlocking with a key or attacking with a weapon), appear in the Bag submenu below the story. Like Move and Action, Bag retains at most nine choices without pagination. Long inventories use sidebar page controls. Opening categories, going Back and viewing inventory send no game commands and use no decisions. Selecting any gameplay action still counts.
