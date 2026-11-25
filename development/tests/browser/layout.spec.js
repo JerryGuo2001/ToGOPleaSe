@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { action, reveal, ready, stored, openCategory } from './menu-helpers.js';
+import { startAdventure, action, reveal, ready, stored, openCategory } from './menu-helpers.js';
 
 async function expectFits(page) {
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
@@ -40,11 +40,11 @@ for (const viewport of [
   test(`story, commands and persistent bag fit at ${viewport.width}x${viewport.height}`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto('index.html?story=lantern-cove');
-    await expect(page.locator('#start')).toBeVisible();
-    await expect(page.locator('.titlebar')).toBeVisible();
-    await page.locator('#start').click();
+    await expect(page.locator('#welcome-next')).toBeEnabled();
+    await expect(page.locator('#welcome')).toBeVisible();
+    await startAdventure(page);
     await ready(page);
-    for (const selector of ['.masthead', '.titlebar', '.session-bar']) await expect(page.locator(selector)).toBeHidden();
+    await expect(page.locator('#welcome')).toBeHidden();
     const story = await page.locator('.story-panel').boundingBox();
     const bag = await page.locator('#bag-view').boundingBox();
     const commands = await page.locator('#choices').boundingBox();
@@ -96,7 +96,7 @@ test('each submenu shows nine choices and a separate Back card, preserves RT, an
     await route.fulfill({ json: story });
   });
   await page.goto('index.html?story=lantern-cove');
-  await page.locator('#start').click();
+  await startAdventure(page);
   await ready(page);
   await expect(page.locator('#actions .action')).toHaveCount(27);
   for (const category of ['move', 'action', 'bag']) await expect(page.locator(`#actions .action[data-category="${category}"]`)).toHaveCount(9);

@@ -1,7 +1,7 @@
 import { clock, afterVisiblePaint } from './timing.js';
 import { csvBlob, metadataBlob, downloadBlob } from './data_save.js';
 
-export const EXPERIMENT_VERSION = '3.2.0';
+export const EXPERIMENT_VERSION = '3.3.0';
 export const DECISION_LIMIT = 10;
 export class ExperimentController {
   constructor({ game, view, store, time = clock, present = afterVisiblePaint, download = downloadBlob, sessionId = crypto.randomUUID() }) {

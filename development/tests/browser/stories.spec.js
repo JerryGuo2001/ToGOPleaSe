@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { parse } from 'csv-parse/sync';
-import { action, reveal, ready, stored } from './menu-helpers.js';
+import { startAdventure, action, reveal, ready, stored } from './menu-helpers.js';
 
 async function choose(page, id) {
   await (await reveal(page, id)).click();
@@ -23,7 +23,7 @@ test('the category menu comes first, Back is free, and each decision returns to 
   await expect(page.locator('#score')).toHaveText('0');
   await expect(page.locator('#score-max')).toHaveText('/ 350');
   await expect(action(page, 'open_mailbox')).toBeDisabled();
-  await page.locator('#start').click();
+  await startAdventure(page);
   const initial = await stored(page);
   await ready(page);
   await expect(page.locator('#empty-bag')).toBeVisible();
@@ -31,9 +31,7 @@ test('the category menu comes first, Back is free, and each decision returns to 
   await expect(page.locator('#categories button:visible')).toHaveCount(3);
   await expect(page.locator('#actions .action:visible')).toHaveCount(0);
   await expect(page.locator('#menu-back')).toBeHidden();
-  await expect(page.locator('.masthead')).toBeHidden();
-  await expect(page.locator('.titlebar')).toBeHidden();
-  await expect(page.locator('.session-bar')).toBeHidden();
+  await expect(page.locator('#welcome')).toBeHidden();
   await page.locator('#bag-view').hover();
   for (const category of ['bag', 'action', 'move']) {
     await page.locator(`#category-${category}`).click();
@@ -52,7 +50,6 @@ test('the category menu comes first, Back is free, and each decision returns to 
   expect(browsed.rows).toEqual(initial.rows);
   expect(browsed.ui_events.map(event => event.category)).toEqual(['bag', 'categories', 'action', 'categories', 'move', 'categories']);
   expect(await page.evaluate(() => window.sentCommands)).toEqual(commands);
-  await expect(page.locator('#progress')).toHaveText('Decision 1 / 10');
   await choose(page, 'open_mailbox');
   await expect(page.locator('#categories button:visible')).toHaveCount(3);
   await expect(page.locator('#actions .action:visible')).toHaveCount(0);
@@ -77,13 +74,13 @@ test('the category menu comes first, Back is free, and each decision returns to 
 
 test('a JSON-only story uses the same UI, inventory, score and export with isolated recovery', async ({ page }) => {
   await page.goto('./');
-  await page.locator('#start').click();
+  await startAdventure(page);
   await choose(page, 'open_mailbox');
   const zork = await stored(page);
   await page.goto('index.html?story=lantern-cove');
   await expect(page.locator('#story-title')).toHaveText('Lantern Cove');
   await expect(page.locator('#recovery')).toBeHidden();
-  await page.locator('#start').click();
+  await startAdventure(page);
   for (const id of ['take_key', 'to_cottage', 'take_lantern', 'unlock_door']) await choose(page, id);
   await expect(page.locator('#inventory')).toContainText('Brass key');
   await expect(page.locator('#inventory')).toContainText('Lantern');
@@ -119,7 +116,7 @@ test('missing and invalid story folders show a useful error', async ({ page }) =
 test('mobile category buttons, Back and Escape work with the keyboard', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
-  await page.locator('#start').click();
+  await startAdventure(page);
   await choose(page, 'open_mailbox'); await choose(page, 'take_advertisement');
   await page.locator('#category-action').focus();
   await page.keyboard.press('ArrowRight');

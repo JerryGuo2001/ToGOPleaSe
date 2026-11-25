@@ -1,6 +1,18 @@
 import { expect } from '@playwright/test';
 export const action = (page, id) => page.locator(`[data-action-id="${id}"]`);
 export const ready = page => expect(page.locator('#choices')).toHaveAttribute('aria-busy', 'false');
+export async function readInstructions(page) {
+  for (let i = 0; i < await page.locator('.instruction-page').count(); i++) {
+    if (await page.locator('#start').isVisible()) break;
+    await page.locator('#welcome-next').click();
+  }
+  await expect(page.locator('#start')).toBeEnabled();
+}
+export async function startAdventure(page) {
+  await readInstructions(page);
+  await page.locator('#start').click();
+  await ready(page);
+}
 export async function openCategory(page, category) {
   await ready(page);
   if (await page.locator('#choices').getAttribute('data-menu') === category) return;

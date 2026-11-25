@@ -1,14 +1,14 @@
 import { test, expect } from '@playwright/test';
-import { action, reveal, ready, stored } from './menu-helpers.js';
+import { startAdventure, action, reveal, ready, stored } from './menu-helpers.js';
 
 for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
   test(`story history retains actions and responses with free scrollback at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto('index.html');
-    await expect(page.locator('#start')).toBeVisible();
+    await expect(page.locator('#welcome-next')).toBeEnabled();
     const opening = await page.locator('#narrative').textContent();
     await expect(page.locator('.transcript-entry')).toHaveCount(1);
-    await page.locator('#start').click();
+    await startAdventure(page);
     await ready(page);
     await expect(page.locator('.transcript-entry')).toHaveCount(1);
     for (const id of ['open_mailbox', 'take_advertisement', 'read_advertisement', 'close_mailbox']) {

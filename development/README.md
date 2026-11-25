@@ -54,21 +54,22 @@ See the [story authoring guide](../story_version_control/README.md) for a minima
 
 ## How the task works
 
+- A centered welcome screen leads through four short instruction pages with Continue and Back. The story and game controls remain hidden until the final **Start adventure** button. Edit or add `.instruction-page` sections in `index.html` to change or extend the guide; the page count and final Start button adapt automatically.
 - **Move / Action / Bag** appear as three large buttons below the story at the beginning of each decision. Selecting one opens up to **nine choices** in a 3×3 grid and a matching **Back** card. Back returns to the category menu and does not consume a choice slot. Category browsing is free; choices do not paginate.
 - When a category exceeds nine choices, the menu drops informational/no-effect options first. State-changing and unknown effects rank higher; ties keep the source order. See [ACTION_POLICY.md](docs/ACTION_POLICY.md) for the exact priorities and limits.
 - Your inventory stays visible on the right. Reading, dropping, using held items, and using carried tools belong in the **Bag category below the story**. The inventory has free page controls when it cannot fit in the sidebar.
 - Viewing your bag, changing its page, and reading story history use **no decision and no game move**. Selecting any gameplay action counts as one decision, including unsuccessful attempts. Sessions end after **10 decisions**, or earlier if the story ends.
 - The score inside the story panel comes from the story state. Zork uses its original signed score global and maximum of 350.
 
-Keyboard users can Tab between controls and activate them with Enter/Space. All actions lock while a command is processing. Start does not issue a command. After Start, the entire welcome header—including the story title and decision strip—is hidden and the game fills the viewport. Only the transcript scrolls. Each new turn brings its action and response into view; scroll up for history or use “Latest response” to return. The full history and inventory remain available when the session ends.
+Keyboard users can Tab between controls and activate them with Enter/Space. All actions lock while a command is processing. Start requests browser fullscreen directly from the participant’s click, then opens the game. If fullscreen is unsupported or declined, the game fills the available browser viewport. Participants may exit fullscreen using the browser’s controls. Start does not issue a game command. Only the transcript scrolls. Each new turn brings its action and response into view; scroll up for history or use “Latest response” to return. The full history and inventory remain available when the session ends.
 
 ## Timing and saved data
 
 Data stays in the browser. There is no backend, analytics, or upload. Finishing downloads `<story-id>_<anonymous-id>.csv`; buttons let you download the CSV again and save session details as JSON. Interrupted sessions can be downloaded after reloading. Recovery is separated by story; earlier v1 Zork sessions can still be recovered.
 
-The measurement starts when actions are enabled after two visible animation frames. Reaction time includes reading history, viewing inventory, and switching categories; these do not restart the timer. Category visits and inventory page visits are saved in session JSON `ui_events` without CSV decision rows. CSV contains the exact retained choices across all three categories, original text, inventory, score, timestamps and version metadata. Omitted choices are neither executable through the worker nor recorded as available. See [MEASUREMENT.md](docs/MEASUREMENT.md).
+Instruction reading and the initial fullscreen transition precede session timing. The measurement starts when actions are enabled after two visible animation frames. Reaction time includes reading history, viewing inventory, and switching categories; these do not restart the timer. Category visits and inventory page visits are saved in session JSON `ui_events` without CSV decision rows. CSV contains the exact retained choices across all three categories, original text, inventory, score, timestamps and version metadata. Omitted choices are neither executable through the worker nor recorded as available. See [MEASUREMENT.md](docs/MEASUREMENT.md).
 
-**Implementation `3.2.0` starts every decision at the category menu**, with a large Back card in each submenu. Reaction time includes category selection and returning with Back or Escape. The nine-choice limits and Zork action policy remain `3.1.0`; the game choices are unchanged from v3.1, but their presentation differs from its persistent tabs.
+**Implementation `3.3.0` adds the separate welcome guide and fullscreen start.** The first narrative is no longer previewed before Start. Every decision still starts at the category menu, with a large Back card in each submenu. Zork action policy remains `3.1.0`; the game choices are unchanged, but the procedure differs from earlier versions.
 
 ## GitHub Pages
 

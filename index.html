@@ -15,15 +15,42 @@
     <symbol id="icon-back" viewBox="0 0 24 24"><path d="m10 5-7 7 7 7M3 12h18"/></symbol>
   </defs></svg>
   <main>
-    <header class="masthead">
-      <div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><span>THE EXPLORATION TASK</span></div>
-      <span class="edition">A choose-your-own adventure</span>
-    </header>
-    <section class="titlebar" aria-label="Story and progress">
-      <div><p id="story-subtitle" class="eyebrow">An interactive story</p><h1 id="story-title">Preparing your adventure…</h1></div>
+    <section id="welcome" aria-label="Welcome and instructions">
+      <div class="welcome-content">
+        <p class="welcome-brand eyebrow"><span aria-hidden="true">✦</span> THE EXPLORATION TASK</p>
+        <div id="instruction-pages">
+          <section class="instruction-page" aria-labelledby="story-title">
+            <p class="welcome-greeting">Welcome to</p>
+            <h1 id="story-title" tabindex="-1">Preparing your adventure…</h1>
+            <p id="story-subtitle" class="welcome-subtitle">An interactive story</p>
+            <p>Explore a story, one decision at a time.<br>Read the short guide, then begin your adventure.</p>
+          </section>
+          <section class="instruction-page" aria-labelledby="controls-heading" hidden>
+            <h2 id="controls-heading" tabindex="-1">Choose your next move</h2>
+            <ul class="instruction-list"><li><strong>Move</strong> to explore your surroundings.</li><li><strong>Action</strong> to interact and discover.</li><li><strong>Bag</strong> to use the items you carry.</li></ul>
+            <p>Choose a category, then one of its up to nine options. Use <strong>Back</strong> to return to the category menu.</p>
+          </section>
+          <section class="instruction-page" aria-labelledby="story-guide-heading" hidden>
+            <h2 id="story-guide-heading" tabindex="-1">Follow your adventure</h2>
+            <p>Read each response in the story window. Scroll there to revisit your earlier choices and their results.</p>
+            <p>Your inventory stays visible on the right. Your score appears inside the story window.</p>
+          </section>
+          <section class="instruction-page" aria-labelledby="ready-heading" hidden>
+            <h2 id="ready-heading" tabindex="-1">Ready to explore?</h2>
+            <p>You’ll make up to <strong>10 decisions</strong>. Each game action uses one decision. Browsing categories, viewing your bag and going Back are free.</p>
+            <p>At the end, your session data downloads as a CSV file.</p>
+            <p class="welcome-note">Start opens the game in fullscreen when your browser supports it.</p>
+          </section>
+        </div>
+        <nav class="welcome-navigation" aria-label="Instruction pages">
+          <button id="welcome-back" class="secondary" hidden>← Back</button>
+          <button id="welcome-next" class="primary" disabled>Continue <span aria-hidden="true">→</span></button>
+          <button id="start" class="primary" hidden>Start adventure <span aria-hidden="true">→</span></button>
+        </nav>
+        <p id="instruction-progress" class="eyebrow" aria-live="polite">1 / 4</p>
+        <p id="notice" role="status">Loading the game…</p>
+      </div>
     </section>
-    <div class="session-bar"><p id="progress">Preparing your session…</p><div id="decision-track" aria-hidden="true"></div><span class="session-label">EXPLORATION SESSION</span></div>
-    <div class="intro"><p id="notice" role="status">Loading the game…</p><button id="start" class="primary" hidden>Start adventure <span aria-hidden="true">→</span></button></div>
     <p id="storage-notice" role="status" hidden></p>
     <section id="game" hidden aria-labelledby="location">
       <section class="story-panel panel">
@@ -67,8 +94,7 @@
       </aside>
     </section>
     <section id="completion" class="result-panel" hidden aria-labelledby="completion-heading"><p class="eyebrow">ADVENTURE LOG</p><h2 id="completion-heading">Session complete</h2><p id="completion-message"></p><button id="download" class="primary">Download CSV</button><button id="details-download" class="secondary">Download session details</button></section>
-    <section id="recovery" class="result-panel" hidden aria-labelledby="recovery-heading"><h2 id="recovery-heading">Previous session</h2><p id="recovery-message"></p><button id="recover-download" class="secondary">Download previous CSV</button><button id="recover-details" class="secondary">Download previous session details</button></section>
-    <footer class="page-footer"><span>A little curiosity goes a long way.</span><span>10 decisions. Your adventure.</span></footer>
+    <details id="recovery" class="result-panel" hidden><summary>Previous session available</summary><p id="recovery-message"></p><button id="recover-download" class="secondary">Download previous CSV</button><button id="recover-details" class="secondary">Download previous session details</button></details>
     <noscript>This task requires JavaScript. Please enable it and reload this page.</noscript>
   </main>
   <script type="module" src="./js/task.js"></script>

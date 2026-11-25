@@ -3,10 +3,10 @@ import { readFile } from 'node:fs/promises';
 import { parse } from 'csv-parse/sync';
 import { COLUMNS } from '../../../js/data_save.js';
 
-import { action, reveal, ready, stored } from './menu-helpers.js';
+import { startAdventure, action, reveal, ready, stored } from './menu-helpers.js';
 async function start(page) {
   await page.goto('index.html');
-  await page.locator('#start').click();
+  await startAdventure(page);
   await ready(page);
 }
 async function choose(page, id) {
@@ -115,16 +115,17 @@ test('refresh preserves interrupted CSV and starts a fresh story with a new ID',
   await choose(page, 'open_mailbox');
   const prior = await stored(page);
   await page.reload();
-  await expect(page.locator('#start')).toBeVisible();
+  await expect(page.locator('#welcome-next')).toBeEnabled();
   await expect(page.locator('.transcript-entry')).toHaveCount(1);
   await expect(page.locator('#recovery-message')).toContainText('interrupted');
+  await page.locator('#recovery summary').click();
   const recoveryDownload = page.waitForEvent('download');
   await page.locator('#recover-download').click();
   const rows = parse(await readFile(await (await recoveryDownload).path(), 'utf8'), { columns: true });
   expect(rows).toHaveLength(1);
   expect(rows[0].participant_id).toBe(prior.participant_id);
   expect(rows[0].session_status).toBe('early_termination');
-  await page.locator('#start').click();
+  await startAdventure(page);
   await choose(page, 'open_mailbox');
   const active = await page.evaluate(() => {
     const id = sessionStorage.getItem('exploration-task:v2:zork:active');

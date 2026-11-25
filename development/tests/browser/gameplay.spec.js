@@ -1,14 +1,14 @@
 import { test, expect } from '@playwright/test';
-import { reveal } from './menu-helpers.js';
+import { startAdventure, reveal } from './menu-helpers.js';
 test('real browser loads local worker and story, and clicks through mailbox sequence', async ({ page }) => {
   const errors = [], requests = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('request', request => requests.push(request.url()));
   await page.goto('index.html');
-  await expect(page.locator('#start')).toBeVisible();
+  await expect(page.locator('#welcome-next')).toBeEnabled();
   await expect(page.locator('#narrative')).toContainText('Release 119 / Serial number 880429');
   await expect(page.locator('[data-action-id="open_mailbox"]')).toBeDisabled();
-  await page.locator('#start').click();
+  await startAdventure(page);
   await (await reveal(page, 'open_mailbox')).click();
   await expect(page.locator('#narrative')).toHaveText('Opening the small mailbox reveals a leaflet.\n\n');
   await (await reveal(page, 'take_advertisement')).click();

@@ -1,11 +1,12 @@
 import { GameAdapter } from './game-adapter.js';
-import { ExperimentController, DECISION_LIMIT } from './experiment-controller.js';
+import { ExperimentController } from './experiment-controller.js';
 import { SessionStore } from './session-store.js';
 import { clock } from './timing.js';
 import { csvBlob, metadataBlob, downloadBlob } from './data_save.js';
 import { DEFAULT_STORY } from './config.js';
 import { pagedList } from './paged-list.js';
 import { menuGroup } from './action-menu.js';
+import { welcomeFlow } from './welcome.js';
 
 const $ = id => document.getElementById(id);
 const storyId = new URLSearchParams(location.search).get('story') || DEFAULT_STORY;
@@ -124,7 +125,7 @@ function renderTranscript(result, history) {
 const view = {
   render(result, count, history) {
     current = result;
-    $('game').hidden = false;
+    $('game').hidden = controller.status === 'ready';
     if (result.story) {
       const { title, subtitle, game_version, max_score } = result.story;
       document.title = `${title} — Exploration Task`;
@@ -136,10 +137,6 @@ const view = {
     $('location').textContent = result.state.room.name;
     $('score').textContent = result.state.score ?? '—';
     const addedResponse = renderTranscript(result, history);
-    $('progress').textContent = `Decision ${Math.min(count + 1, DECISION_LIMIT)} / ${DECISION_LIMIT}`;
-    $('decision-track').replaceChildren(...Array.from({ length: DECISION_LIMIT }, (_, i) => {
-      const marker = document.createElement('span'); marker.className = i < count ? 'filled' : ''; return marker;
-    }));
     renderInventory(result.state.inventory);
     renderActions(result.actions);
     if (addedResponse) showLatestResponse();
@@ -147,21 +144,18 @@ const view = {
     if (controller.status !== 'ready') $('narrative').focus({ preventScroll: true });
   },
   ready() {
-    $('start').hidden = false;
-    $('progress').textContent = `Ready · ${DECISION_LIMIT} decisions`;
-    $('notice').textContent = 'Explore one choice at a time. Choose Move, Action or Bag below the story, then pick an option. Each category shows up to 9 choices. Browsing categories and viewing your inventory are free. After 10 decisions, your session data downloads.';
+    welcome.ready();
   },
   started() {
     document.body.classList.add('session-active');
-    $('start').hidden = true; $('notice').textContent = ''; $('recovery').hidden = true;
+    welcome.hide(); $('recovery').hidden = true;
     window.scrollTo(0, 0);
   },
   enable() { setEnabled(true); },
   disable() { setEnabled(false); },
   complete(session) {
     document.body.classList.add('session-complete');
-    $('start').hidden = true; $('choices').hidden = true; $('notice').textContent = ''; $('completion').hidden = false;
-    $('progress').textContent = `${session.rows.length} / ${DECISION_LIMIT} decisions recorded`;
+    welcome.hide(); $('choices').hidden = true; $('completion').hidden = false;
     $('completion-heading').textContent = session.status === 'completed' ? 'Session complete' : 'Session ended early';
     $('completion-message').textContent = session.status === 'completed'
       ? 'Thank you. Your 10 choices have been recorded. If the download did not start, use Download CSV below. You can download it again while this page remains open.'
@@ -176,6 +170,7 @@ const view = {
   },
 };
 const controller = new ExperimentController({ game: new GameAdapter({ storyId }), view, store });
+const welcome = welcomeFlow($('welcome'), () => controller.start());
 for (const button of categories) {
   button.onclick = event => {
     if (event.detail > 1) return;
@@ -202,7 +197,6 @@ document.addEventListener('keydown', event => {
     backToCategories();
   }
 });
-$('start').onclick = () => controller.start();
 $('latest-response').onclick = () => { showLatestResponse(); $('narrative').focus({ preventScroll: true }); };
 $('download').onclick = () => controller.downloadCSV();
 $('details-download').onclick = () => controller.downloadMetadata();

@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawn } from 'node:child_process';
 import { parse } from 'csv-parse/sync';
-import { reveal, ready } from '../browser/menu-helpers.js';
+import { startAdventure, reveal, ready } from '../browser/menu-helpers.js';
 
 // Connect to a separate temporary Chrome profile with no Playwright focus
 // emulation. Ordinary Playwright page fixtures force background tabs visible.
@@ -35,7 +35,7 @@ test('actual tab switches and window minimization flag RT during a complete real
     await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: directory });
     const action = id => page.locator(`[data-action-id="${id}"]`);
     await page.goto(`${testInfo.project.use.baseURL}index.html`);
-    await page.locator('#start').click();
+    await startAdventure(page);
     await ready(page);
     await expect.poll(() => page.evaluate(() => document.hidden)).toBe(false);
 
